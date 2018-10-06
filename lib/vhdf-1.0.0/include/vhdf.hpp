@@ -19,7 +19,7 @@
 
 namespace vhdf
 {
-    const static int BLOCK_SIZE = 512;
+    const static int BLOCK_SIZE = 4096;
 
     /**
      * Open the disk file with "filename", or creates it if it does not exist.
