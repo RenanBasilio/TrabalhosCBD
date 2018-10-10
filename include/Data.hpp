@@ -1,6 +1,12 @@
 #pragma once
+#include <Util.hpp>
 
-struct Data
+class Data
 {
-    int dia, mes, ano;
+    public:
+        int dia, mes, ano;
+
+        Data() {};
+        explicit Data(std::string str, std::string format = "dd/MM/YYYY");
+        ~Data() {};
 };

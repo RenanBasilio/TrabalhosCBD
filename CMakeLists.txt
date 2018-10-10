@@ -26,11 +26,21 @@ add_subdirectory(lib/vhdf-1.0.0/)
 set(
     SOURCE_FILES
     src/main.cpp
+    src/Data.cpp
+    src/IO.cpp
+    src/Parser.cpp
+    src/Registro.cpp
+    src/Util.cpp
 )
 
 set(
     HEADER_FILES 
     include/main.hpp
+    include/Data.hpp
+    include/IO.hpp
+    include/Parser.hpp
+    include/Registro.hpp
+    include/Util.hpp
 )
 
 # Set the name of the built executable

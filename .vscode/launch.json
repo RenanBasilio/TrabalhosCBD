@@ -9,7 +9,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "windows": {
-                "program": "${workspaceFolder}/build/Debug/a-0.0.0.exe",
+                "program": "${workspaceFolder}/build/Debug/Lista_02-0.0.0.exe",
                 "args": [],
             },
             "stopAtEntry": false,
@@ -22,7 +22,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "windows": {
-                "program": "${workspaceFolder}/build/Debug/a-0.0.0.exe",
+                "program": "${workspaceFolder}/build/Debug/Lista_02-0.0.0.exe",
                 "args": [],
             },
             "stopAtEntry": false,

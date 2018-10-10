@@ -1,6 +1,6 @@
 #pragma once
-#include <memory>
 #include <Data.hpp>
+#include <Util.hpp>
 
 class Registro
 {
@@ -63,14 +63,7 @@ private:
     long long unsigned int NR_PROCESSO;
     
 public:
-    Registro();
-    ~Registro();
+    Registro() {};
+    explicit Registro(std::string csv);
+    ~Registro() {};
 };
-
-Registro::Registro()
-{
-}
-
-Registro::~Registro()
-{
-}
