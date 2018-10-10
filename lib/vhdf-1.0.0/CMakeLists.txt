@@ -4,9 +4,8 @@
 # > cmake . -Bbuild -DLIBDIR:STRING=<library directory>
 # > cmake --build .
 
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.5)
 project(vhdf
-        DESCRIPTION "Virtual hard disk file library."
         VERSION 1.0.0)
 
 include(GNUInstallDirs)

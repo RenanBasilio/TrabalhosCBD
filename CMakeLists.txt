@@ -4,9 +4,8 @@
 # > cmake . -Bbuild -DLIBDIR:STRING=<library directory>
 # > cmake --build .
 
-cmake_minimum_required(VERSION 3.9)
-project(Lista_02 
-        DESCRIPTION "Organização de Arquivos de Registros de SGBDR"
+cmake_minimum_required(VERSION 3.5)
+project(Lista_02
         VERSION 0.0.0)
 
 enable_language(CXX)
