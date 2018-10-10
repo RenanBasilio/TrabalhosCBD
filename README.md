@@ -1,6 +1,9 @@
 # TrabalhosCBD
 Trabalhos para a disciplina Construção de Banco de Dados, ministrada pelo professor Milton Ramirez no período de 2018-2.
 
+A base de dados inclusa neste repositório foi obtida no endereço 
+http://agencia.tse.jus.br/estatistica/sead/odsele/consulta_cand/consulta_cand_2018.zip em 09/10/2018.
+
 ## Compilação
 Pré-Requisitos:
 
