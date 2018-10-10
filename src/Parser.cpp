@@ -1,4 +1,6 @@
 #include <Parser.hpp>
+#include <cmath>
+#include <cstring>
 
 void parseStream(std::ifstream& ifs, int vhd, int blockoffset) {
     std::string str;

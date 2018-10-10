@@ -1,4 +1,5 @@
 #include <BlockIO.hpp>
+#include <cstring>
 
 // Recupere um registro de um bloco
 Registro getRegistro(int index, void* block) {

@@ -1,4 +1,5 @@
 #include <Registro.hpp>
+#include <cstring>
 
 Registro::Registro(std::string csv) {
     std::vector<std::string> splits = splitString(csv, ';');

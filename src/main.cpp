@@ -1,6 +1,7 @@
 #include <main.hpp>
 #include <fstream>
 #include <string>
+#include <cmath>
 
 int main(int argc, char const *argv[])
 {

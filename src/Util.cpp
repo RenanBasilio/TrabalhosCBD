@@ -13,7 +13,7 @@ std::vector<std::string> splitString(std::string str, char delimiter) {
     return splits;
 }
 
-bool SNtoBool(std::string str) {
+bool SNtoBool(const std::string& str) {
     if(str == "S") return true;
     else return false;
 }
