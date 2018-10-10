@@ -18,12 +18,12 @@ private:
     char NM_UE[20];
     int CD_CARGO;
     char DS_CARGO[20];
-    int SQ_CANDIDATO;                       // Surrogate
+    long long unsigned int SQ_CANDIDATO;                       // Surrogate
     int NR_CANDIDATO;
     char NM_CANDIDATO[70];
     char NM_URNA_CANDIDATO[30];
     char NM_SOCIAL_CANDIDATO[40];
-    int NR_CPF_CANDIDATO;                   // Outro candidato para chave primaria
+    char NR_CPF_CANDIDATO[11];                                 // Outro candidato para chave primaria
     char NM_EMAIL[60];
     int CD_SITUACAO_CANDIDATURA;
     char DS_SITUACAO_CANDIDATURA[10];
@@ -33,17 +33,17 @@ private:
     int NR_PARTIDO;
     char SG_PARTIDO[15];
     char NM_PARTIDO[50];
-    int SQ_COLIGACAO;
+    long long unsigned int SQ_COLIGACAO;
     char NM_COLIGACAO[55];
     char DS_COMPOSICAO_COLIGACAO[150];
     int CD_NACIONALIDADE;
-    char DS_NACIONALIDADE;
+    char DS_NACIONALIDADE[20];  // Double check
     char SG_UF_NASCIMENTO[2];
     int CD_MUNICIPIO_NASCIMENTO;
     char NM_MUNICIPIO_NASCIMENTO[35];
     Data DT_NASCIMENTO;
     int NR_IDADE_DATA_POSSE;
-    int NR_TITULO_ELEITORAL_CANDIDATO;
+    char NR_TITULO_ELEITORAL_CANDIDATO[12];
     int CD_GENERO;
     char DS_GENERO[9];
     int CD_GRAU_INSTRUCAO;
@@ -51,7 +51,7 @@ private:
     int CD_ESTADO_CIVIL;
     char DS_ESTADO_CIVIL[25];
     int CD_COR_RACA;
-    char DS_COR_RACA;
+    char DS_COR_RACA[20];       // Double check
     int CD_OCUPACAO;
     char DS_OCUPACAO[70];
     int VR_MAX_DESPESA_CAMPANHA;

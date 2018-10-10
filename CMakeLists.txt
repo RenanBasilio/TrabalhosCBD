@@ -27,7 +27,7 @@ set(
     SOURCE_FILES
     src/main.cpp
     src/Data.cpp
-    src/IO.cpp
+    src/BlockIO.cpp
     src/Parser.cpp
     src/Registro.cpp
     src/Util.cpp
@@ -37,7 +37,7 @@ set(
     HEADER_FILES 
     include/main.hpp
     include/Data.hpp
-    include/IO.hpp
+    include/BlockIO.hpp
     include/Parser.hpp
     include/Registro.hpp
     include/Util.hpp
