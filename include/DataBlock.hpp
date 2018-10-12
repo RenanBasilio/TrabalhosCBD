@@ -16,6 +16,8 @@ public:
     // Escreve um registro em um bloco
     void setRegistro(int index, const Registro& reg);
 
+    int getPrimeiroRegistroDispEscrita();
+
     static constexpr int tamanhoOffset() {
         return constexpr_ceil(sizeof(DataBlock::registrosEscritos)/8);
     }

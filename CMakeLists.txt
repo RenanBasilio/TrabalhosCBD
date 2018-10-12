@@ -31,6 +31,9 @@ set(
     src/Registro.cpp
     src/Util.cpp
     src/MemoryWrapper.cpp
+    src/OrganizacaoHeap.cpp
+    src/OrganizacaoOrdenada.cpp
+    src/OrganizacaoHash.cpp
 )
 
 set(
@@ -45,6 +48,9 @@ set(
     include/Timestamp.hpp
     include/MemoryWrapper.hpp
     include/Campo.hpp
+    include/OrganizacaoHeap.cpp
+    include/OrganizacaoOrdenada.cpp
+    include/OrganizacaoHash.cpp
 )
 
 # Set the name of the built executable
@@ -66,8 +72,8 @@ target_link_libraries(${EXE_NAME} vhdf)
 
 # Copy dynamic libraries to executable directory if necessary
 add_custom_command(
-     TARGET ${EXE_NAME} POST_BUILD
-     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-         $<TARGET_FILE_DIR:vhdf>/vhdf.dll
-         $<TARGET_FILE_DIR:${EXE_NAME}>
+    TARGET ${EXE_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE_DIR:vhdf>/vhdf.dll
+        $<TARGET_FILE_DIR:${EXE_NAME}>
 )

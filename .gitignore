@@ -36,6 +36,8 @@
 *.tar.gz
 
 build
+build-unix
+build-linux
 
 # http://www.gnu.org/software/automake
 

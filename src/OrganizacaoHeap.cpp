@@ -1,0 +1,5 @@
+
+namespace OrganizacaoHeap
+{
+    void runTests() {};
+}

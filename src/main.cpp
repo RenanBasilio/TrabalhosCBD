@@ -5,6 +5,9 @@
 #include <exception>
 
 #include <HEAD.hpp>
+#include <OrganizacaoHash.hpp>
+#include <OrganizacaoOrdenada.hpp>
+#include <OrganizacaoHeap.hpp>
 
 
 int main(int argc, char const *argv[])
@@ -31,6 +34,15 @@ int main(int argc, char const *argv[])
     HEAD<Registro> head = HEAD<Registro>();
     vhdf::writeBlock(vhd, 0, &head);
     parseStream(ifs, vhd, 1);
+    std::cout << "Done" << std::endl;
+
+    std::cout << "Executando testes..." << std::endl;
+    std::cout << "Armazenamento heap... "; 
+    OrganizacaoHeap::runTests();
+    std::cout << "Done" << std::endl << "Armazenamento ordenado...";
+    OrganizacaoOrdenada::runTests();
+    std::cout << "Done" << std::endl << "Armazenamento em hash...";
+    OrganizacaoHash::runTests();
     std::cout << "Done" << std::endl;
 
 

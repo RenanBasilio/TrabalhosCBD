@@ -1,0 +1,5 @@
+
+namespace OrganizacaoHash
+{
+    void runTests() {};
+}
