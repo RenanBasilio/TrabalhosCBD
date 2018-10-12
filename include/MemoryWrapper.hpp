@@ -11,6 +11,7 @@ private:
     bool blockNull = true;
     unsigned long long int blockId;
 public:
+    MemoryWrapper() {};
     explicit MemoryWrapper(int i) { disk = i; };
 
     void loadBlock(unsigned long long int index) {
@@ -21,6 +22,10 @@ public:
 
     void commitBlock() {
         if (!blockNull) vhdf::writeBlock(disk, blockId, &block);
+    }
+
+    int getDiskId() {
+        return disk;
     }
 
     T* operator->() {return &block;};

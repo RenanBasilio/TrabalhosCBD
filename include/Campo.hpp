@@ -2,21 +2,21 @@
 #include <cstring>
 #include <string>
 
-enum tipoCampo { INT, BIGINT, CHAR, DATA, HORA, TIMESTAMP };
+enum TipoCampo { INT, BIGINT, CHAR, DATA, HORA, TIMESTAMP, BOOL };
 
 class Campo
 {
-private:
-    char nm_campo[30];
-    tipoCampo tipo;
 public:
     int tamanho, pos_relativa;
+    char nm_campo[30];
+    TipoCampo tipo;
 
     Campo() {};
-    Campo(int t, int pos_rel, const std::string& nome) {
+    Campo(int t, int pos_rel, const std::string& nome, TipoCampo tp) {
         tamanho = t;
         pos_relativa = pos_rel;
         strncpy(nm_campo, nome.c_str(), sizeof(nm_campo));
+        tipo = tp;
     }
     ~Campo() {};
 };
