@@ -1,9 +1,19 @@
 #pragma once
 #include <Util.hpp>
+#include <Data.hpp>
+#include <Hora.hpp>
 
-class Timestamp: public Data, public Hora
+class Timestamp
 {
+public:
+    Data data;
+    Hora hora;
+
     Timestamp() {};
-    Timestamp(std::str datastr, std::str horastr): Data(datastr), Hora(horastr){}
+    Timestamp(const std::string& str) {
+        std::vector<std::string> split = splitString(str, ' ');
+        hora = Hora(split[0]);
+        data = Data(split[1]);
+    }
     ~Timestamp() {};
 };

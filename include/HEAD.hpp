@@ -1,21 +1,28 @@
 #pragma once
 #include <Data.hpp>
+#include <Campo.hpp>
+#include <Timestamp.hpp>
+
+enum organizacao { HEAP, ORDERED, HASH };    
 
 class HEAD
 {
 private:
-    enum organizacao { HEAP, ORDERED, HASH };
+    size_t primeiro_bloco, ultimo_bloco;
     // Vetor de tamanhos e localizações relativas dos campos e do registro (usar função initRegistro abaixo)
     // Ponteiros para estruturas secundárias como o identificador de registros deletados
     // Timestamps relevantes à base
+    organizacao org;
 public:
-    Campo[38] campos;
+    Campo campos[38];
     size_t registros_deletados;
     Timestamp criacao, alteracao;
-}
+};
 
 
 void initRegistro(int pos_rel_registro) {
+
+    Campo campos[38];
     // Iniciar campos
     campos[0] = Campo(sizeof(int), 0, "ANO_ELEICAO");
     campos[1] = Campo(sizeof(int), 0, "CD_TIPO_ELEICAO");
@@ -34,7 +41,7 @@ void initRegistro(int pos_rel_registro) {
     campos[14] = Campo(sizeof(char)*11, 0, "NR_CPF_CANDIDATO");
     campos[15] = Campo(sizeof(char)*60, 0, "NM_EMAIL");
     campos[16] = Campo(sizeof(int), 0, "CD_SITUACAO_CANDIDATURA");
-    campos[17] = Campo(sizeof(int), 0, "CD_DETALHE_SITUACAO_CAND;");
+    campos[17] = Campo(sizeof(int), 0, "CD_DETALHE_SITUACAO_CAND");
     campos[18] = Campo(sizeof(char)*15, 0, "TP_AGREMIACAO");
     campos[19] = Campo(sizeof(int), 0, "NR_PARTIDO");
     campos[20] = Campo(sizeof(size_t), 0, "SQ_COLIGACAO");
@@ -62,4 +69,6 @@ void initRegistro(int pos_rel_registro) {
        rel += campos[i-1].tamanho;
        campos[i].pos_relativa = rel;
     }
+
+    //std::cout >> campos >> std::endl;
  }

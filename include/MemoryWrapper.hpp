@@ -1,3 +1,4 @@
+#pragma once
 #include <vhdf.hpp>
 
 template <typename T>

@@ -4,6 +4,9 @@
 #include <cmath>
 #include <exception>
 
+#include <HEAD.hpp>
+
+
 int main(int argc, char const *argv[])
 {
     if (Registro::nPorBloco() < 0) throw std::runtime_error("Erro: Tamanho do registro é grande de mais (>1 bloco)");
@@ -25,12 +28,16 @@ int main(int argc, char const *argv[])
     ifs.open("consulta_cand_2018_BRASIL.csv", std::ifstream::in);
     std::string str;
     std::getline(ifs, str);
-    parseStream(ifs, vhd, 0);
+    HEAD head;
+    vhdf::writeBlock(vhd, 0, &head);
+    parseStream(ifs, vhd, 1);
     std::cout << "Done" << std::endl;
+
 
     ifs.close();
     vhdf::closeDisk(vhd);
 
-    
+    initRegistro(0);
+
     return 0;
 }
