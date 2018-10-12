@@ -1,6 +1,7 @@
 #pragma once
 #include <Data.hpp>
 #include <Util.hpp>
+#include <vhdf.hpp>
 
 class Registro
 {
@@ -65,4 +66,8 @@ public:
     Registro() {};
     explicit Registro(std::string csv);
     ~Registro() {};
+
+    static constexpr int nPorBloco(){
+        return (int)vhdf::BLOCK_SIZE/sizeof(Registro);
+    };
 };

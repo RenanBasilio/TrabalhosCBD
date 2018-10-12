@@ -2,11 +2,14 @@
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <exception>
 
 int main(int argc, char const *argv[])
 {
+    if (Registro::nPorBloco() < 0) throw std::runtime_error("Erro: Tamanho do registro é grande de mais (>1 bloco)");
+    
     std::cout << "Tamanho do registro e de " << sizeof(Registro) << " bytes." << std::endl;
-    std::cout << "Tamanho do bloco e de " << vhdf::BLOCK_SIZE << " bytes (" << std::floor(vhdf::BLOCK_SIZE/sizeof(Registro)) << " registros por bloco)." << std::endl;
+    std::cout << "Tamanho do bloco e de " << vhdf::BLOCK_SIZE << " bytes (" << Registro::nPorBloco() << " registros por bloco)." << std::endl;
     
     std::cout << "Initializing virtual hard disk... ";
     remove("testdisk.vhd");

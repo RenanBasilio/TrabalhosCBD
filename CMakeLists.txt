@@ -26,22 +26,24 @@ set(
     SOURCE_FILES
     src/main.cpp
     src/Data.cpp
-    src/BlockIO.cpp
+    src/DataBlock.cpp
     src/Parser.cpp
     src/Registro.cpp
     src/Util.cpp
+    src/MemoryWrapper.cpp
 )
 
 set(
     HEADER_FILES 
     include/main.hpp
     include/Data.hpp
-    include/BlockIO.hpp
+    include/DataBlock.hpp
     include/Parser.hpp
     include/Registro.hpp
     include/Util.hpp
     include/HEAD.hpp
     include/Timestamp.hpp
+    include/MemoryWrapper.hpp
 )
 
 # Set the name of the built executable
@@ -62,9 +64,9 @@ target_include_directories(${EXE_NAME} PUBLIC ${INCLUDE_DIRECTORIES})
 target_link_libraries(${EXE_NAME} vhdf)
 
 # Copy dynamic libraries to executable directory if necessary
-# add_custom_command(
-#     TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#         ${LIB_SHARED_LIB}
-#         $<TARGET_FILE_DIR:${PROJECT_NAME}>
-# )
+add_custom_command(
+     TARGET ${EXE_NAME} POST_BUILD
+     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+         $<TARGET_FILE_DIR:vhdf>/vhdf.dll
+         $<TARGET_FILE_DIR:${EXE_NAME}>
+)

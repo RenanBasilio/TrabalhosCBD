@@ -3,7 +3,7 @@
 #include <vhdf.hpp>
 
 #include <Registro.hpp>
-#include <BlockIO.hpp>
+#include <DataBlock.hpp>
 
 void parseStream(std::ifstream& ifs, int vhd, int blockoffset);
 
