@@ -44,6 +44,7 @@ set(
     include/HEAD.hpp
     include/Timestamp.hpp
     include/MemoryWrapper.hpp
+    include/Campo.hpp
 )
 
 # Set the name of the built executable

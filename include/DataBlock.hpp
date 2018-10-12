@@ -2,6 +2,7 @@
 #include <bitset>
 
 #include <Registro.hpp>
+#include <Util.hpp>
 
 class DataBlock {
 public:
@@ -14,4 +15,8 @@ public:
 
     // Escreve um registro em um bloco
     void setRegistro(int index, const Registro& reg);
+
+    static constexpr int tamanhoOffset() {
+        return constexpr_ceil(sizeof(DataBlock::registrosEscritos)/8);
+    }
 };

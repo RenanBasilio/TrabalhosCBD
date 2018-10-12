@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
     ifs.open("consulta_cand_2018_BRASIL.csv", std::ifstream::in);
     std::string str;
     std::getline(ifs, str);
-    HEAD head;
+    HEAD<Registro> head = HEAD<Registro>();
     vhdf::writeBlock(vhd, 0, &head);
     parseStream(ifs, vhd, 1);
     std::cout << "Done" << std::endl;
@@ -36,8 +36,6 @@ int main(int argc, char const *argv[])
 
     ifs.close();
     vhdf::closeDisk(vhd);
-
-    initRegistro(0);
 
     return 0;
 }
