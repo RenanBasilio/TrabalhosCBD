@@ -4,7 +4,7 @@
 
 class Registro
 {
-private:
+public:
     int ANO_ELEICAO;
     int CD_TIPO_ELEICAO;
     //char NM_TIPO_ELEICAO[20];
@@ -62,7 +62,6 @@ private:
     int NR_PROTOCOLO_CANDIDATURA;
     size_t NR_PROCESSO;
     
-public:
     Registro() {};
     explicit Registro(std::string csv);
     ~Registro() {};

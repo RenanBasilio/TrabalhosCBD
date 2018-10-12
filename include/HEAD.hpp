@@ -16,7 +16,7 @@ char* initRegistro(int pos_rel_registro) {
     char[38] arr;
 
     // Iniciar campos
-    arr[0] = Campo(sizeof(int), 0, 'ANO_ELEICAO');
+    arr[0] = Campo(sizeof(int), 0, "ANO_ELEICAO");
     arr[1] = Campo(sizeof(int), 0, 'CD_TIPO_ELEICAO');
     arr[2] = Campo(sizeof(int), 0, 'NR_TURNO');
     arr[3] = Campo(sizeof(int), 0, 'CD_ELEICAO');

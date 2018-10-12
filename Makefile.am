@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = lib/vhdf-1.0.0
 
-AM_CXXFLAGS = -std=c++11 -Wl,-rpath='$(top_builddir)/lib/vhdf-1.0.0/.libs'
+AM_CXXFLAGS = -std=c++11 -Wl,-rpath='$$ORIGIN'
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/lib/vhdf-1.0.0/include
 EXTRA_DIST = \
   CMakeLists.txt \
