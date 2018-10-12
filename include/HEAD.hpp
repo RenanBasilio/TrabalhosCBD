@@ -58,7 +58,7 @@ void initRegistro(int pos_rel_registro) {
 
     // Atualizar posições relativas
     int rel = pos_rel_registro;
-    for(int i=1; i < sizeof(campos); i++) {
+    for(int i=1; i < (sizeof(campos)/sizeof(*campos)); i++) {
        rel += campos[i-1].tamanho;
        campos[i].pos_relativa = rel;
     }
