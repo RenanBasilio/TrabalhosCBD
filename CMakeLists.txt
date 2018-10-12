@@ -40,6 +40,8 @@ set(
     include/Parser.hpp
     include/Registro.hpp
     include/Util.hpp
+    include/HEAD.hpp
+    include/Timestamp.hpp
 )
 
 # Set the name of the built executable
