@@ -1,6 +1,7 @@
 #pragma once
 #include <cstring>
 #include <string>
+#include <stdexcept>
 
 enum TipoCampo { INT, BIGINT, CHAR, DATA, HORA, TIMESTAMP, BOOL };
 
