@@ -2,7 +2,7 @@
 #include <Util.hpp>
 #include <Registro.hpp>
 
-bool comparaCampo( Campo campo, void* reg, std::string valor, std::string opr) {
+bool comparaCampo( Campo campo, void* reg, std::string valor, const std::string &opr) {
     void* cmp_ptr = nullptr;
 
     enum OP { IGUAL, DIFF, MENOR, MAIOR, MEIG, MAIG };
