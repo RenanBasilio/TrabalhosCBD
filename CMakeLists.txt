@@ -34,6 +34,7 @@ set(
     src/OrganizacaoHeap.cpp
     src/OrganizacaoOrdenada.cpp
     src/OrganizacaoHash.cpp
+    src/Campo.cpp
 )
 
 set(

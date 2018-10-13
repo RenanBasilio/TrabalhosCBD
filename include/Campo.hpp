@@ -20,3 +20,5 @@ public:
     }
     ~Campo() {};
 };
+
+bool comparaCampo( Campo campo, void* registro, std::string valor );
