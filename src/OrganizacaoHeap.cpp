@@ -25,6 +25,32 @@ namespace OrganizacaoHeap
         vhdf::closeDisk(vhd);
     }
 
+    bool insert(std::vector<Registro> registros) {
+
+        HEAD<Registro> schema;
+        vhdf::readBlock(mem.getDiskId(), 0, &schema);
+
+        size_t pos_inicial = schema.ultimo_bloco;
+
+        mem.loadBlock(pos_inicial);
+        int blocos_processados = 0;
+        int regs_processados = mem->getPrimeiroRegistroDispEscrita();
+
+        for (int i = 0; i<registros.size(); i++) {
+            if (regs_processados == schema.regs_por_bloco) {
+                mem.commitBlock();
+                blocos_processados++;
+                mem.loadBlock(pos_inicial+blocos_processados);
+                regs_processados = mem->getPrimeiroRegistroDispEscrita();
+            }
+
+            mem->setRegistro(regs_processados, registros[i]);
+        }
+        mem.commitBlock();
+
+        return true;
+    }
+
     // Um select de comparacao simples pode ser feito usando params do tipo {"CAMPO=valor"}
     // Um select de comparacao em uma faixa pode ser feito usando params do tipo {"CAMPO=[min:max]"}
     // Um select de comparacao em um conjunto de valores pode ser feito usando params do tipo {"CAMPO={valor1,valor2}"}
@@ -57,7 +83,6 @@ namespace OrganizacaoHeap
                     Target target;
                     target.campo = schema.campos[j];
 
-                    target.tipo = VALUE;
                     if (valor[0] == '[' && valor[valor.length()-1] == ']') {
                         target.valor = splitString(valor.substr(1, valor.length()-2), ':');
                         target.tipo = RANGE;
@@ -65,6 +90,10 @@ namespace OrganizacaoHeap
                     else if (valor[0] == '{' && valor[valor.length()-1] == '}') {
                         target.valor = splitString(valor.substr(1, valor.length()-2), ',');
                         target.tipo = SET;
+                    }
+                    else {
+                        target.valor = {valor};
+                        target.tipo = VALUE;
                     }
 
                     targets.push_back(target);
@@ -120,6 +149,10 @@ namespace OrganizacaoHeap
         initialize();
         try {
             std::vector<Registro> vect;
+            Registro reg;
+            strncpy(reg.NM_CANDIDATO, "HELLO WORLD", sizeof(reg.NM_CANDIDATO));
+            insert({reg});
+            vect = select({"NM_CANDIDATO=HELLO WORLD"});
             //vect= select({"ANO_ELEICAO=2018", "NR_CANDIDATO=12"});
             //vect = select({"ST_REELEICAO=S"});
             //vect = select({"ST_DECLARAR_BENS=S"});
