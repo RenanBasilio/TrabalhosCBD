@@ -49,6 +49,9 @@ namespace OrganizacaoHeap
         }
         mem.commitBlock();
 
+        schema.ultimo_bloco = pos_inicial+blocos_processados;
+        vhdf::writeBlock(mem.getDiskId(), 0, &schema);
+
         return true;
     }
 
