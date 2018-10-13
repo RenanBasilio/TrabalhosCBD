@@ -17,7 +17,7 @@ namespace OrganizacaoHeap
 
     void initialize() {
         //mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDHeap.vhd", sizeof(Registro)*40000, true));
-        vhd = vhdf::openDisk("testdisk.vhd", sizeof(Registro)*40000, true);
+        vhd = vhdf::openDisk("testdisk.vhd");
         mem = MemoryWrapper<DataBlock>(vhd);
     }
 
@@ -76,21 +76,21 @@ namespace OrganizacaoHeap
                             break;
                         case CHAR:
                             cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
-                            if ( strcmp(reinterpret_cast<char*>(cmp_ptr), targets[k].second.c_str()) == 0) match++;
+                            if ( strncmp(reinterpret_cast<char*>(cmp_ptr), targets[k].second.c_str(), targets[k].first.tamanho) == 0) match++;
                             break;
                         /*
                         case DATA: {
-                            Data* data_ptr = reinterpret_cast<Data*>(&reg + targets[k].first.pos_relativa);
+                            Data* data_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
                             if (*data_ptr == Data(targets[k].second)) match++;
                             break;
                         }
                         case HORA: {
-                            Data* hora_ptr = reinterpret_cast<Hora*>(&reg + targets[k].first.pos_relativa);
+                            Data* hora_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
                             if (*hora_ptr == Hora(targets[k].second)) match++;
                             break;
                         }
                         case TIMESTAMP: {
-                            Timestamp* tstamp_ptr = reinterpret_cast<Timestamp*>(&reg + targets[k].first.pos_relativa);
+                            Timestamp* tstamp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
                             if (*tstamp_ptr == Timestamp(targets[k].second)) match++;
                             break;
                         }
@@ -115,9 +115,11 @@ namespace OrganizacaoHeap
     void runTests() {
         initialize();
         try {
-            std::vector<Registro> vect = select({"ANO_ELEICAO=2018", "NR_CANDIDATO=12"});
+            std::vector<Registro> vect;
+            //vect= select({"ANO_ELEICAO=2018", "NR_CANDIDATO=12"});
             vect = select({"ST_REELEICAO=S"});
-            vect = select({"CD_SIT_TOT_TURNO=-1"});
+            vect = select({"ST_DECLARAR_BENS=S"});
+            //vect = select({"CD_SIT_TOT_TURNO=-1"});
             vect = select({"NR_PROCESSO=06017561520186160000"});
             //std::vector<Registro> vect = select({"ANO_ELEICAO=2018", "CD_TIPO_ELEICAO=2", "NR_TURNO=1", "CD_ELEICAO=297"});
             std::cout << "It WORKS!" << std::endl;

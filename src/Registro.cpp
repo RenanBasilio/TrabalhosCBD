@@ -61,6 +61,6 @@ Registro::Registro(std::string csv) {
     ST_REELEICAO = SNtoBool(splits[54]);
     ST_DECLARAR_BENS = SNtoBool(splits[55]);
     NR_PROTOCOLO_CANDIDATURA = stoi(splits[56]);
-    NR_PROCESSO = atoll(splits[57].c_str());
+    strncpy(NR_PROCESSO, splits[57].c_str(), sizeof(NR_PROCESSO));
 }
 

@@ -62,7 +62,7 @@ public:
     bool ST_REELEICAO;
     bool ST_DECLARAR_BENS;
     int NR_PROTOCOLO_CANDIDATURA;
-    size_t NR_PROCESSO;
+    char NR_PROCESSO[20];
     
     Registro() {};
     explicit Registro(std::string csv);
@@ -118,7 +118,7 @@ public:
         campos[34] = Campo(sizeof(bool), (size_t)&reg.ST_REELEICAO - (size_t)&reg, "ST_REELEICAO", BOOL);
         campos[35] = Campo(sizeof(bool), (size_t)&reg.ST_DECLARAR_BENS - (size_t)&reg, "ST_DECLARAR_BENS", BOOL);
         campos[36] = Campo(sizeof(int), (size_t)&reg.NR_PROTOCOLO_CANDIDATURA - (size_t)&reg, "NR_PROTOCOLO_CANDIDATURA", INT);
-        campos[37] = Campo(sizeof(size_t), (size_t)&reg.NR_PROCESSO - (size_t)&reg, "NR_PROCESSO", BIGINT);
+        campos[37] = Campo(sizeof(char)*20, (size_t)&reg.NR_PROCESSO - (size_t)&reg, "NR_PROCESSO", CHAR);
 
         // Atualizar posições relativas
         /*
