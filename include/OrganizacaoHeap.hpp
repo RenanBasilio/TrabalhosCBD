@@ -3,5 +3,7 @@ namespace OrganizacaoHeap
 {
     void runTests();
 
-    std::vector<Registro> select(size_t id, int campos...);
+    bool INSERT(std::vector<Registro> registros);
+
+    std::vector<Registro> SELECT(size_t id, int campos...);
 }

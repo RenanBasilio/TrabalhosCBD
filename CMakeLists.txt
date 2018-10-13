@@ -52,6 +52,7 @@ set(
     include/OrganizacaoHeap.cpp
     include/OrganizacaoOrdenada.cpp
     include/OrganizacaoHash.cpp
+    include/Query.hpp
 )
 
 # Set the name of the built executable

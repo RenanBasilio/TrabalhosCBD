@@ -16,6 +16,8 @@ public:
     // Escreve um registro em um bloco
     void setRegistro(int index, const Registro& reg);
 
+    void deleteRegistro(int index);
+
     int getPrimeiroRegistroDispEscrita();
 
     static constexpr int tamanhoOffset() {
