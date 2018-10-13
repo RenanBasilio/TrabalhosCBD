@@ -9,6 +9,7 @@
 #include <vhdf.hpp>
 #include <Campo.hpp>
 #include <exception>
+#include <Query.hpp>
 
 namespace OrganizacaoHeap
 {
@@ -25,7 +26,7 @@ namespace OrganizacaoHeap
         vhdf::closeDisk(vhd);
     }
 
-    bool insert(std::vector<Registro> registros) {
+    bool INSERT(std::vector<Registro> registros) {
 
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
@@ -54,56 +55,14 @@ namespace OrganizacaoHeap
     // Um select de comparacao simples pode ser feito usando params do tipo {"CAMPO=valor"}
     // Um select de comparacao em uma faixa pode ser feito usando params do tipo {"CAMPO=[min:max]"}
     // Um select de comparacao em um conjunto de valores pode ser feito usando params do tipo {"CAMPO={valor1,valor2}"}
-    std::vector<Registro> select(std::vector<std::string> params) {
+    std::vector<Registro> SELECT(std::vector<std::string> params) {
 
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
 
-        std::vector<Registro> ret_regs;
+        std::vector<Registro> ret_regs = std::vector<Registro>();
 
-        enum Type { VALUE, SET, RANGE };
-        struct Target {
-            Campo campo;
-            Type tipo;
-            std::vector<std::string> valor;
-        };
-
-        std::vector<Target> targets;
-        //std::cout << "Parsing select fields..." << std::endl;
-
-        for (int i = 0; i < params.size(); i++) {
-            std::string str = params[i];
-            unsigned int pos = str.find('=');
-            std::string campo = str.substr(0, pos);
-            std::string valor = str.substr(pos+1, str.length() - pos);
-            bool found = false;
-
-            for (int j = 0; j < schema.nCampos; j++) {
-                if (strcmp(schema.campos[j].nm_campo, campo.c_str()) == 0) {
-                    Target target;
-                    target.campo = schema.campos[j];
-
-                    if (valor[0] == '[' && valor[valor.length()-1] == ']') {
-                        target.valor = splitString(valor.substr(1, valor.length()-2), ':');
-                        target.tipo = RANGE;
-                    }
-                    else if (valor[0] == '{' && valor[valor.length()-1] == '}') {
-                        target.valor = splitString(valor.substr(1, valor.length()-2), ',');
-                        target.tipo = SET;
-                    }
-                    else {
-                        target.valor = {valor};
-                        target.tipo = VALUE;
-                    }
-
-                    targets.push_back(target);
-                    found = true;
-                }
-            }
-            if (!found) {
-                throw std::invalid_argument("O campo "+campo+" nao consta da tabela");
-            }
-        }
+        std::vector<Target> targets = parseQuery(schema, params);
 
         Registro reg;
         
@@ -144,6 +103,55 @@ namespace OrganizacaoHeap
         return ret_regs;
     }
 
+    bool DELETE(std::vector<std::string> params) {
+        HEAD<Registro> schema;
+        vhdf::readBlock(mem.getDiskId(), 0, &schema);
+
+        std::vector<Registro> ret_regs;
+
+        std::vector<Target> targets = parseQuery(schema, params);
+
+        Registro reg;
+        
+        //std::cout << "Comparing against database members..." << std::endl;
+        for (size_t i = schema.primeiro_bloco; i <= schema.ultimo_bloco; i++) {
+            mem.loadBlock(i);
+            bool changed = false;
+            for (int j = 0; j < mem->registrosEscritos.size(); j++) {
+                reg = mem->getRegistro(j);
+
+                int match = 0;
+                for (int k = 0; k < targets.size(); k++) {
+                    switch (targets[k].tipo) {
+                        case VALUE:
+                            if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0])) match++;
+                            break;
+                        case SET:
+                            for (int v = 0; v < targets[k].valor.size(); v++)
+                                if (comparaCampo(targets[k].campo, &reg, targets[k].valor[v])) {
+                                    match++;
+                                    break;
+                                }
+                            break;
+                        case RANGE:
+                            if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0], ">=") && 
+                                comparaCampo(targets[k].campo, &reg, targets[k].valor[1], "<=")) match++;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (match == targets.size()) {
+                    mem->deleteRegistro(j);
+                    changed = true;
+                    //std::cout << "Found match " << reg.NM_CANDIDATO << std::endl;
+                }
+            }
+            if (changed) mem.commitBlock();
+        }
+        return true;
+    }
+
 
     void runTests() {
         initialize();
@@ -151,15 +159,22 @@ namespace OrganizacaoHeap
             std::vector<Registro> vect;
             Registro reg;
             strncpy(reg.NM_CANDIDATO, "HELLO WORLD", sizeof(reg.NM_CANDIDATO));
-            insert({reg});
-            vect = select({"NM_CANDIDATO=HELLO WORLD"});
+
+            INSERT({reg});
+
+            vect = SELECT({"NM_CANDIDATO=HELLO WORLD"});
+
+            DELETE({"NM_CANDIDATO=HELLO WORLD"});
+
+            vect = SELECT({"NM_CANDIDATO=HELLO WORLD"});
+
             //vect= select({"ANO_ELEICAO=2018", "NR_CANDIDATO=12"});
             //vect = select({"ST_REELEICAO=S"});
             //vect = select({"ST_DECLARAR_BENS=S"});
             //vect = select({"CD_SIT_TOT_TURNO=-1"});
             //vect = select({"NR_PROCESSO=06017561520186160000"});
-            vect = select({"NR_PROCESSO={06017561520186160000,06016366920186160000}"});
-            vect = select({"NR_CANDIDATO=[10:20]"});
+            //vect = select({"NR_PROCESSO={06017561520186160000,06016366920186160000}"});
+            //vect = select({"NR_CANDIDATO=[10:20]"});
             //vect = select({"ANO_ELEICAO=2018", "CD_TIPO_ELEICAO=2", "NR_TURNO=1", "CD_ELEICAO=297"});
             std::cout << "It WORKS!" << std::endl;
         }
