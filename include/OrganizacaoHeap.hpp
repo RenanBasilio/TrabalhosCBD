@@ -5,5 +5,7 @@ namespace OrganizacaoHeap
 
     bool INSERT(std::vector<Registro> registros);
 
-    std::vector<Registro> SELECT(size_t id, int campos...);
+    std::vector<Registro> SELECT(std::vector<std::string> params);
+
+    bool DELETE(std::vector<std::string> params);
 }
