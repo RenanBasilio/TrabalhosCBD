@@ -96,4 +96,5 @@ CTestTestfile.cmake
 *.vhd
 *.so*
 .~*
-.vscode
+.vscode/launch.json
+.vscode/settings.json

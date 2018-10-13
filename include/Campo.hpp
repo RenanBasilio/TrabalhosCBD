@@ -21,4 +21,4 @@ public:
     ~Campo() {};
 };
 
-bool comparaCampo( Campo campo, void* registro, std::string valor );
+bool comparaCampo( Campo campo, void* registro, std::string valor, std::string opr = "==");
