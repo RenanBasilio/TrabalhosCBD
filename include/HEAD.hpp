@@ -21,6 +21,7 @@ public:
     Timestamp criacao, alteracao;
     int nCampos;
     Campo campos[T::nCampos()];
+    int campo_ordenacao;
     Organizacao org;
 
     HEAD() {
@@ -31,7 +32,7 @@ public:
         regs_por_bloco = vhdf::BLOCK_SIZE/tamanho;
     };
 private:
-    char padding[vhdf::BLOCK_SIZE - (sizeof(size_t)*3 + sizeof(int)*4 + sizeof(Organizacao) + sizeof(Timestamp)*2 + sizeof(Campo)*T::nCampos())];
+    char padding[vhdf::BLOCK_SIZE - (sizeof(size_t)*3 + sizeof(int)*5 + sizeof(Organizacao) + sizeof(Timestamp)*2 + sizeof(Campo)*T::nCampos())];
 };
 
 

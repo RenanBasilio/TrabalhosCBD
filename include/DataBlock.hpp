@@ -18,9 +18,12 @@ public:
 
     void deleteRegistro(int index);
 
+    bool isRegistroEscrito(int index);
+
     int getPrimeiroRegistroDispEscrita();
 
     static constexpr int tamanhoOffset() {
         return constexpr_ceil(sizeof(DataBlock::registrosEscritos)/8);
     }
+
 };

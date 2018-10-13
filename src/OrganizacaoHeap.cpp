@@ -13,17 +13,16 @@
 
 namespace OrganizacaoHeap
 {
-    int vhd;
     MemoryWrapper<DataBlock> mem;
 
     void initialize() {
         //mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDHeap.vhd", sizeof(Registro)*40000, true));
-        vhd = vhdf::openDisk("testdisk.vhd");
+        int vhd = vhdf::openDisk("testdisk.vhd");
         mem = MemoryWrapper<DataBlock>(vhd);
     }
 
     void cleanup() {
-        vhdf::closeDisk(vhd);
+        vhdf::closeDisk(mem.getDiskId());
     }
 
     bool INSERT(std::vector<Registro> registros) {
@@ -36,16 +35,30 @@ namespace OrganizacaoHeap
         mem.loadBlock(pos_inicial);
         int blocos_processados = 0;
         int regs_processados = mem->getPrimeiroRegistroDispEscrita();
+        bool block_changed = false;
 
         for (int i = 0; i<registros.size(); i++) {
             if (regs_processados == schema.regs_por_bloco) {
-                mem.commitBlock();
+                if (block_changed) mem.commitBlock();
                 blocos_processados++;
                 mem.loadBlock(pos_inicial+blocos_processados);
+                block_changed = false;
                 regs_processados = mem->getPrimeiroRegistroDispEscrita();
             }
-
-            mem->setRegistro(regs_processados, registros[i]);
+            if (!mem->isRegistroEscrito(i)) {
+                mem->setRegistro(regs_processados, registros[i]);
+                block_changed = true;
+            }
+            else {
+                regs_processados = mem->getPrimeiroRegistroDispEscrita();
+                while (regs_processados != 1) {
+                    if (block_changed) mem.commitBlock();
+                    blocos_processados++;
+                    mem.loadBlock(pos_inicial+blocos_processados);
+                    block_changed = false;
+                    regs_processados = mem->getPrimeiroRegistroDispEscrita();
+                }
+            }
         }
         mem.commitBlock();
 
