@@ -43,7 +43,7 @@ namespace OrganizacaoHeap
             std::string valor = str.substr(pos+1, str.length() - pos);
             bool found = false;
 
-            for (int j = 0; j < sizeof(schema.nCampos); j++) {
+            for (int j = 0; j < schema.nCampos; j++) {
                 if (strcmp(schema.campos[j].nm_campo, campo.c_str()) == 0) {
                     targets.push_back({schema.campos[j], valor});
                     found = true;
@@ -64,10 +64,40 @@ namespace OrganizacaoHeap
 
                 int match = 0;
                 for (int k = 0; k < targets.size(); k++) {
+                    void* cmp_ptr = nullptr;
                     switch (targets[k].first.tipo) {
                         case INT:
-                            int* cmp_ptr = reinterpret_cast<int*>(&reg + targets[k].first.pos_relativa);
-                            if (*cmp_ptr == std::stoi(targets[k].second)) match++;
+                            cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
+                            if (*reinterpret_cast<int*>(cmp_ptr) == std::stoi(targets[k].second)) match++;
+                            break;
+                        case BIGINT:
+                            cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
+                            if (*reinterpret_cast<size_t*>(cmp_ptr) == std::atoll(targets[k].second.c_str())) match++;
+                            break;
+                        case CHAR:
+                            cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
+                            if ( strcmp(reinterpret_cast<char*>(cmp_ptr), targets[k].second.c_str()) == 0) match++;
+                            break;
+                        /*
+                        case DATA: {
+                            Data* data_ptr = reinterpret_cast<Data*>(&reg + targets[k].first.pos_relativa);
+                            if (*data_ptr == Data(targets[k].second)) match++;
+                            break;
+                        }
+                        case HORA: {
+                            Data* hora_ptr = reinterpret_cast<Hora*>(&reg + targets[k].first.pos_relativa);
+                            if (*hora_ptr == Hora(targets[k].second)) match++;
+                            break;
+                        }
+                        case TIMESTAMP: {
+                            Timestamp* tstamp_ptr = reinterpret_cast<Timestamp*>(&reg + targets[k].first.pos_relativa);
+                            if (*tstamp_ptr == Timestamp(targets[k].second)) match++;
+                            break;
+                        }
+                        */
+                        case BOOL:
+                            cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
+                            if (*reinterpret_cast<bool*>(cmp_ptr) == SNtoBool(targets[k].second)) match++;
                             break;
                     }
                 }
@@ -85,7 +115,11 @@ namespace OrganizacaoHeap
     void runTests() {
         initialize();
         try {
-            std::vector<Registro> vect = select({"ANO_ELEICAO=2018"});
+            std::vector<Registro> vect = select({"ANO_ELEICAO=2018", "NR_CANDIDATO=12"});
+            vect = select({"ST_REELEICAO=S"});
+            vect = select({"CD_SIT_TOT_TURNO=-1"});
+            vect = select({"NR_PROCESSO=06017561520186160000"});
+            //std::vector<Registro> vect = select({"ANO_ELEICAO=2018", "CD_TIPO_ELEICAO=2", "NR_TURNO=1", "CD_ELEICAO=297"});
             std::cout << "It WORKS!" << std::endl;
         }
         catch (std::invalid_argument e) {

@@ -77,12 +77,13 @@ public:
     }
 
     static std::vector<Campo> initHEAD() {
+        Registro reg = Registro();
 
         std::vector<Campo> campos(Registro::nCampos());
         // Iniciar campos
-        campos[0] = Campo(sizeof(int), 0, "ANO_ELEICAO", INT);
-        campos[1] = Campo(sizeof(int), 0, "CD_TIPO_ELEICAO", INT);
-        campos[2] = Campo(sizeof(int), 0, "NR_TURNO", INT);
+        campos[0] = Campo(sizeof(int), (size_t)&reg.ANO_ELEICAO - (size_t)&reg, "ANO_ELEICAO", INT);
+        campos[1] = Campo(sizeof(int), (size_t)&reg.CD_TIPO_ELEICAO- (size_t)&reg, "CD_TIPO_ELEICAO", INT);
+        campos[2] = Campo(sizeof(int), (size_t)&reg.NR_TURNO - (size_t)&reg, "NR_TURNO", INT);
         campos[3] = Campo(sizeof(int), 0, "CD_ELEICAO", INT);
         campos[4] = Campo(sizeof(Data), 0, "DT_ELEICAO", DATA);
         campos[5] = Campo(sizeof(char)*8, 0, "TP_ABRANGENCIA", CHAR);
@@ -120,11 +121,13 @@ public:
         campos[37] = Campo(sizeof(size_t), 0, "NR_PROCESSO", BIGINT);
 
         // Atualizar posições relativas
+        /*
         int rel = 0;
         for(int i=1; i < campos.size(); i++) {
             rel += campos[i-1].tamanho;
             campos[i].pos_relativa = rel;
         }
+        */
 
         return campos;
 
