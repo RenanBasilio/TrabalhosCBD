@@ -96,3 +96,4 @@ CTestTestfile.cmake
 *.vhd
 *.so*
 .~*
+.vscode
