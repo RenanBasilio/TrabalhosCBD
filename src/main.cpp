@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
     std::cout << "Tamanho do bloco e de " << vhdf::BLOCK_SIZE << " bytes (" << Registro::nPorBloco() << " registros por bloco)." << std::endl;
     
     std::cout << "Initializing virtual hard disk... ";
-    //remove("testdisk.vhd");
+    remove("testdisk.vhd");
     int vhd = vhdf::openDisk("testdisk.vhd", sizeof(Registro)*40000, true);
     if (vhd == -1) {
         std::cout << "Error opening virtual hard disk." << std::endl;
@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
     ifs.open("consulta_cand_2018_BRASIL.csv", std::ifstream::in);
     std::string str;
     std::getline(ifs, str);
-    //parseStream(ifs, vhd, 1);
+    parseStream(ifs, vhd, 1);
     std::cout << "Done" << std::endl;
 
     std::cout << "Executando testes..." << std::endl;

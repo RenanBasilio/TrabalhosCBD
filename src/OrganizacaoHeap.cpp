@@ -25,7 +25,9 @@ namespace OrganizacaoHeap
         vhdf::closeDisk(vhd);
     }
 
-    // Considere cada argumento extra no formato "CAMPO=valor"
+    // Um select de comparacao simples pode ser feito usando params do tipo {"CAMPO=valor"}
+    // Um select de comparacao em uma faixa pode ser feito usando params do tipo {"CAMPO=[min:max]"}
+    // Um select de comparacao em um conjunto de valores pode ser feito usando params do tipo {"CAMPO={valor1,valor2}"}
     std::vector<Registro> select(std::vector<std::string> params) {
 
         HEAD<Registro> schema;
@@ -33,7 +35,14 @@ namespace OrganizacaoHeap
 
         std::vector<Registro> ret_regs;
 
-        std::vector<std::pair<Campo, std::string>> targets;
+        enum Type { VALUE, SET, RANGE };
+        struct Target {
+            Campo campo;
+            Type tipo;
+            std::vector<std::string> valor;
+        };
+
+        std::vector<Target> targets;
         //std::cout << "Parsing select fields..." << std::endl;
 
         for (int i = 0; i < params.size(); i++) {
@@ -45,7 +54,20 @@ namespace OrganizacaoHeap
 
             for (int j = 0; j < schema.nCampos; j++) {
                 if (strcmp(schema.campos[j].nm_campo, campo.c_str()) == 0) {
-                    targets.push_back({schema.campos[j], valor});
+                    Target target;
+                    target.campo = schema.campos[j];
+
+                    target.tipo = VALUE;
+                    if (valor[0] == '[' && valor[valor.length()-1] == ']') {
+                        target.valor = splitString(valor.substr(1, valor.length()-2), ':');
+                        target.tipo = RANGE;
+                    }
+                    else if (valor[0] == '{' && valor[valor.length()-1] == '}') {
+                        target.valor = splitString(valor.substr(1, valor.length()-2), ',');
+                        target.tipo = SET;
+                    }
+
+                    targets.push_back(target);
                     found = true;
                 }
             }
@@ -64,40 +86,22 @@ namespace OrganizacaoHeap
 
                 int match = 0;
                 for (int k = 0; k < targets.size(); k++) {
-                    void* cmp_ptr = nullptr;
-                    switch (targets[k].first.tipo) {
-                        case INT:
-                            cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
-                            if (*reinterpret_cast<int*>(cmp_ptr) == std::stoi(targets[k].second)) match++;
+                    switch (targets[k].tipo) {
+                        case VALUE:
+                            if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0])) match++;
                             break;
-                        case BIGINT:
-                            cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
-                            if (*reinterpret_cast<size_t*>(cmp_ptr) == std::atoll(targets[k].second.c_str())) match++;
+                        case SET:
+                            for (int v = 0; v < targets[k].valor.size(); v++)
+                                if (comparaCampo(targets[k].campo, &reg, targets[k].valor[v])) {
+                                    match++;
+                                    break;
+                                }
                             break;
-                        case CHAR:
-                            cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
-                            if ( strncmp(reinterpret_cast<char*>(cmp_ptr), targets[k].second.c_str(), targets[k].first.tamanho) == 0) match++;
+                        case RANGE:
+                            if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0], ">=") && 
+                                comparaCampo(targets[k].campo, &reg, targets[k].valor[1], "<=")) match++;
                             break;
-                        /*
-                        case DATA: {
-                            Data* data_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
-                            if (*data_ptr == Data(targets[k].second)) match++;
-                            break;
-                        }
-                        case HORA: {
-                            Data* hora_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
-                            if (*hora_ptr == Hora(targets[k].second)) match++;
-                            break;
-                        }
-                        case TIMESTAMP: {
-                            Timestamp* tstamp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
-                            if (*tstamp_ptr == Timestamp(targets[k].second)) match++;
-                            break;
-                        }
-                        */
-                        case BOOL:
-                            cmp_ptr = reinterpret_cast<char*>(&reg) + targets[k].first.pos_relativa;
-                            if (*reinterpret_cast<bool*>(cmp_ptr) == SNtoBool(targets[k].second)) match++;
+                        default:
                             break;
                     }
                 }
@@ -117,11 +121,13 @@ namespace OrganizacaoHeap
         try {
             std::vector<Registro> vect;
             //vect= select({"ANO_ELEICAO=2018", "NR_CANDIDATO=12"});
-            vect = select({"ST_REELEICAO=S"});
-            vect = select({"ST_DECLARAR_BENS=S"});
+            //vect = select({"ST_REELEICAO=S"});
+            //vect = select({"ST_DECLARAR_BENS=S"});
             //vect = select({"CD_SIT_TOT_TURNO=-1"});
-            vect = select({"NR_PROCESSO=06017561520186160000"});
-            //std::vector<Registro> vect = select({"ANO_ELEICAO=2018", "CD_TIPO_ELEICAO=2", "NR_TURNO=1", "CD_ELEICAO=297"});
+            //vect = select({"NR_PROCESSO=06017561520186160000"});
+            vect = select({"NR_PROCESSO={06017561520186160000,06016366920186160000}"});
+            vect = select({"NR_CANDIDATO=[10:20]"});
+            //vect = select({"ANO_ELEICAO=2018", "CD_TIPO_ELEICAO=2", "NR_TURNO=1", "CD_ELEICAO=297"});
             std::cout << "It WORKS!" << std::endl;
         }
         catch (std::invalid_argument e) {

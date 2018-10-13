@@ -19,4 +19,5 @@ Lista_02_SOURCES = src/main.cpp \
   src/OrganizacaoHeap.cpp \
   src/OrganizacaoOrdenada.cpp \
   src/OrganizacaoHash.cpp \
+  src/Campo.cpp
 Lista_02_LDADD = $(top_builddir)/lib/vhdf-1.0.0/.libs/libvhdf.so
