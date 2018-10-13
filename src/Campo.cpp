@@ -1,3 +1,4 @@
+#include<stdexcept>
 #include <Campo.hpp>
 #include <Util.hpp>
 #include <Registro.hpp>

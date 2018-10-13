@@ -72,9 +72,9 @@ target_include_directories(${EXE_NAME} PUBLIC ${INCLUDE_DIRECTORIES})
 target_link_libraries(${EXE_NAME} vhdf)
 
 # Copy dynamic libraries to executable directory if necessary
-add_custom_command(
-    TARGET ${EXE_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE_DIR:vhdf>/vhdf.dll
-        $<TARGET_FILE_DIR:${EXE_NAME}>
-)
+#add_custom_command(
+#    TARGET ${EXE_NAME} POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#        $<TARGET_FILE_DIR:vhdf>/vhdf.dll
+#        $<TARGET_FILE_DIR:${EXE_NAME}>
+#)
