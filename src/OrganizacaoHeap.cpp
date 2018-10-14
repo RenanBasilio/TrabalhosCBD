@@ -13,19 +13,18 @@
 
 namespace OrganizacaoHeap
 {
-    MemoryWrapper<DataBlock> mem;
 
-    void initialize() {
+    MemoryWrapper<DataBlock> initialize() {
         //mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDHeap.vhd", sizeof(Registro)*40000, true));
         int vhd = vhdf::openDisk("testdisk.vhd");
-        mem = MemoryWrapper<DataBlock>(vhd);
+        return MemoryWrapper<DataBlock>(vhd);
     }
 
-    void cleanup() {
+    void cleanup(MemoryWrapper<DataBlock> mem) {
         vhdf::closeDisk(mem.getDiskId());
     }
 
-    bool INSERT(std::vector<Registro> registros) {
+    bool INSERT(MemoryWrapper<DataBlock> mem, std::vector<Registro> registros) {
 
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
@@ -75,7 +74,7 @@ namespace OrganizacaoHeap
     // Um select de comparacao simples pode ser feito usando params do tipo {"CAMPO=valor"}
     // Um select de comparacao em uma faixa pode ser feito usando params do tipo {"CAMPO=[min:max]"}
     // Um select de comparacao em um conjunto de valores pode ser feito usando params do tipo {"CAMPO={valor1,valor2}"}
-    std::vector<Registro> SELECT(std::vector<std::string> params) {
+    std::vector<Registro> SELECT(MemoryWrapper<DataBlock> mem, std::vector<std::string> params) {
 
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
@@ -123,7 +122,7 @@ namespace OrganizacaoHeap
         return ret_regs;
     }
 
-    bool DELETE(std::vector<std::string> params) {
+    bool DELETE(MemoryWrapper<DataBlock> mem, std::vector<std::string> params) {
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
 
@@ -174,14 +173,14 @@ namespace OrganizacaoHeap
 
 
     void runTests() {
-        initialize();
+        MemoryWrapper<DataBlock> mem = initialize();
         try {
 
             //INSERT UNICO TEST
             std::vector<Registro> vect;
             Registro reg;
             strncpy(reg.NM_CANDIDATO, "HELLO WORLD", sizeof(reg.NM_CANDIDATO));
-            INSERT({reg});
+            INSERT(mem, {reg});
             std::cout << mem.blockAccessCount << std::endl;
             mem.blockAccessCount = 0;
 
@@ -190,54 +189,54 @@ namespace OrganizacaoHeap
             for(int i=0; i < 20; i++){
                 reglist[i].NR_PARTIDO = i;
             }
-            INSERT(reglist);
+            INSERT(mem, reglist);
             std::cout << mem.blockAccessCount << std::endl;
             mem.blockAccessCount = 0;
 
             //SELECT UM VALOR TEST
-            vect = SELECT({"NM_CANDIDATO=HELLO WORLD"});
+            vect = SELECT(mem, {"NM_CANDIDATO=HELLO WORLD"});
             std::cout << mem.blockAccessCount << std::endl;
-            vect = SELECT({"NM_CANDIDATO=AUGUSTO LUIZ DE LIMA"});
+            vect = SELECT(mem, {"NM_CANDIDATO=AUGUSTO LUIZ DE LIMA"});
             std::cout << mem.blockAccessCount << std::endl;
-            vect = SELECT({"NM_CANDIDATO=EDVALDO MOREIRA DE SINTRA"});
+            vect = SELECT(mem, {"NM_CANDIDATO=EDVALDO MOREIRA DE SINTRA"});
             std::cout << mem.blockAccessCount << vect[0].NM_URNA_CANDIDATO << std::endl;
-            vect = SELECT({"NM_CANDIDATO=ODAIR JOSE FERREIRA"});
+            vect = SELECT(mem, {"NM_CANDIDATO=ODAIR JOSE FERREIRA"});
             std::cout << mem.blockAccessCount << std::endl;
             std::cout << mem.blockAccessCount/4 << std::endl;
             mem.blockAccessCount = 0;
 
             //SELECT MULTIPLOS REGISTROS
-            vect = SELECT({"NM_CANDIDATO={HELLO WORLD,CIRO FERREIRA GOMES}"});
+            vect = SELECT(mem, {"NM_CANDIDATO={HELLO WORLD,CIRO FERREIRA GOMES}"});
             std::cout << mem.blockAccessCount << vect[0].NM_CANDIDATO << vect[1].NM_CANDIDATO <<std::endl;
             mem.blockAccessCount = 0;
 
             //SELECT FAIXA
-            vect = SELECT({"NR_PARTIDO=[10:15]"});
+            vect = SELECT(mem, {"NR_PARTIDO=[10:15]"});
             std::cout << mem.blockAccessCount << vect[0].NR_PARTIDO << std::endl;
             mem.blockAccessCount = 0;
 
             //SELECT 2 VALORES FIXOS
-            vect = SELECT({"NR_PARTIDO=12","NM_CANDIDATO=CIRO FERREIRA GOMES"});
+            vect = SELECT(mem, {"NR_PARTIDO=12","NM_CANDIDATO=CIRO FERREIRA GOMES"});
             std::cout << mem.blockAccessCount << vect[0].NR_PARTIDO << std::endl;
             mem.blockAccessCount = 0;
 
             //DELETE UM REG
-            DELETE({"NM_CANDIDATO=HELLO WORLD"});
+            DELETE(mem, {"NM_CANDIDATO=HELLO WORLD"});
             std::cout << mem.blockAccessCount << std::endl;
             mem.blockAccessCount = 0;
 
             //DELETE MULTIPLOS REG
-            DELETE({"NM_CANDIDATO={AUGUSTO LUIZ DE LIMA,ODAIR JOSE FERREIRA}"});
+            DELETE(mem, {"NM_CANDIDATO={AUGUSTO LUIZ DE LIMA,ODAIR JOSE FERREIRA}"});
             std::cout << mem.blockAccessCount << std::endl;
             mem.blockAccessCount = 0;
 
             //DELETE FAIXA
-            DELETE({"NR_PARTIDO=[10:12]"});
+            DELETE(mem, {"NR_PARTIDO=[10:12]"});
             std::cout << mem.blockAccessCount << std::endl;
             mem.blockAccessCount = 0;
 
             //DELETE 2 VALORES FIXOS
-            DELETE({"NR_PARTIDO=12","NM_CANDIDATO=CIRO FERREIRA GOMES"});
+            DELETE(mem, {"NR_PARTIDO=12","NM_CANDIDATO=CIRO FERREIRA GOMES"});
             std::cout << mem.blockAccessCount << std::endl;
             mem.blockAccessCount = 0;
 
@@ -256,6 +255,6 @@ namespace OrganizacaoHeap
         catch (std::invalid_argument e) {
             std::cout << "Erro: " << e.what() << std::endl;
         }
-        cleanup();
+        cleanup(mem);
     };
 }

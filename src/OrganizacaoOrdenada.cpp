@@ -14,11 +14,9 @@
 
 namespace OrganizacaoOrdenada
 {
-    MemoryWrapper<DataBlock> mem;
-
-    void initialize() {
+    MemoryWrapper<DataBlock> initialize() {
         remove("VHDOrdenado.vhd");
-        mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDOrdenado.vhd", sizeof(Registro)*40000, true));
+        MemoryWrapper<DataBlock> mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDOrdenado.vhd", sizeof(Registro)*40000, true));
         HEAD<Registro> schema = HEAD<Registro>();
         schema.org = HEAP;
         schema.primeiro_bloco = 1;
@@ -31,11 +29,11 @@ namespace OrganizacaoOrdenada
         vhdf::writeBlock(mem.getDiskId(), 0, &schema);
     }
 
-    void cleanup() {
+    void cleanup(MemoryWrapper<DataBlock> mem) {
         vhdf::closeDisk(mem.getDiskId());
     }
 
-    bool INSERT(std::vector<Registro> registros) {
+    bool INSERT(MemoryWrapper<DataBlock> mem, std::vector<Registro> registros) {
 
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
@@ -137,7 +135,7 @@ namespace OrganizacaoOrdenada
             }
             else mem.commitBlock();
         }
-        
+
         vhdf::writeBlock(mem.getDiskId(), 0, &schema);
 
         return true;
@@ -145,14 +143,14 @@ namespace OrganizacaoOrdenada
 
 
     void runTests() {
-        initialize();
+        MemoryWrapper<DataBlock> mem = initialize();
 
         std::vector<Registro> inserts = std::vector<Registro>();
         MemoryWrapper<DataBlock> vhd(vhdf::openDisk("testdisk.vhd"));
         // Teste com um único insert
         vhd.loadBlock(1);
         inserts.push_back(vhd->getRegistro(1));
-        INSERT(inserts);
+        INSERT(mem, inserts);
 
         // Teste com 5 inserts
         inserts.clear();
@@ -160,7 +158,7 @@ namespace OrganizacaoOrdenada
         for (int i = 0; i < 5; i++) {
             inserts.push_back(vhd->getRegistro(i));
         }
-        INSERT(inserts);
+        INSERT(mem, inserts);
 
         // Teste com 10 inserts
         inserts.clear();
@@ -170,11 +168,11 @@ namespace OrganizacaoOrdenada
                 inserts.push_back(vhd->getRegistro(j));
             }
         }
-        INSERT(inserts);
+        INSERT(mem, inserts);
 
         vhdf::closeDisk(vhd.getDiskId());
 
-        cleanup();
+        cleanup(mem);
     };
 
 }
