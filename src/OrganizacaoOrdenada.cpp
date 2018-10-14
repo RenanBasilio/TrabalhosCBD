@@ -158,7 +158,6 @@ namespace OrganizacaoOrdenada
         for (int k = 0; k < targets.size(); k++) {
             switch (targets[k].tipo) {
                 case VALUE:
-                    std::cout<<schema.ultimo_bloco<<" "<<schema.primeiro_bloco<<std::endl;
                     if(strcmp(targets[k].campo.nm_campo, chave.nm_campo) == 0){
                         size_t upper = schema.ultimo_bloco;
                         size_t lower = schema.primeiro_bloco;
@@ -166,12 +165,9 @@ namespace OrganizacaoOrdenada
                         std::string valor = targets[k].valor[0];
 
                         while (lower < upper) {
-
                             middle = (upper+lower+1)/2;
                             mem.loadBlock(middle);
-
                             Registro reg = mem->getRegistro(0);
-
                             if ( comparaCampo(chave, &reg, valor, ">") ) {
                                 upper = middle-1;
                             }
@@ -182,9 +178,7 @@ namespace OrganizacaoOrdenada
                         mem.loadBlock((lower+upper)/2);
                         for (int j = 0; j < mem->registrosEscritos.size(); j++) {
                             reg = mem->getRegistro(j);
-                            std::cout << reg.NM_CANDIDATO << std::endl;
                             if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0])){
-                                std::cout << "oi" << std::endl;
                                 ret_regs.push_back(reg);
                             }
                         }
@@ -194,10 +188,66 @@ namespace OrganizacaoOrdenada
                     }
                     break;
                 case SET:
-
+                    for (int v = 0; v < targets[k].valor.size(); v++){
+                        if(strcmp(targets[k].campo.nm_campo, chave.nm_campo) == 0){
+                            size_t upper = schema.ultimo_bloco;
+                            size_t lower = schema.primeiro_bloco;
+                            size_t middle;
+                            std::string valor = targets[k].valor[v];
+                            while (lower < upper) {
+                                middle = (upper+lower+1)/2;
+                                mem.loadBlock(middle);
+                                Registro reg = mem->getRegistro(0);
+                                if ( comparaCampo(chave, &reg, valor, ">") ) {
+                                    upper = middle-1;
+                                }
+                                else {
+                                    lower = middle;
+                                }
+                            }
+                            mem.loadBlock((lower+upper)/2);
+                            for (int j = 0; j < mem->registrosEscritos.size(); j++) {
+                                reg = mem->getRegistro(j);
+                                if (comparaCampo(targets[k].campo, &reg, targets[k].valor[v])){
+                                    ret_regs.push_back(reg);
+                                }
+                            }
+                        }
+                    }
                     break;
                 case RANGE:
+                    if(strcmp(targets[k].campo.nm_campo, chave.nm_campo) == 0){
+                        size_t upper = schema.ultimo_bloco;
+                        size_t lower = schema.primeiro_bloco;
+                        size_t middle;
+                        std::string valor = targets[k].valor[0];
 
+                        while (lower < upper) {
+                            middle = (upper+lower+1)/2;
+                            mem.loadBlock(middle);
+                            Registro reg = mem->getRegistro(0);
+                            if ( comparaCampo(chave, &reg, valor, ">") ) {
+                                upper = middle-1;
+                            }
+                            else {
+                                lower = middle;
+                            }
+                        }
+                        bool inrange = true;
+                        int w = 0;
+                        while(inrange) {
+                            mem.loadBlock(w + (lower + upper) / 2);
+                            for (int j = 0; j < mem->registrosEscritos.size(); j++) {
+                                reg = mem->getRegistro(j);
+                                if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0], ">=") &&
+                                    comparaCampo(targets[k].campo, &reg, targets[k].valor[1], "<=")) {
+                                    ret_regs.push_back(reg);
+                                } else if(comparaCampo(targets[k].campo, &reg, targets[k].valor[1], ">"))
+                                    inrange=false;
+                            }
+                            w++;
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -242,8 +292,19 @@ namespace OrganizacaoOrdenada
 
         //Teste Select
         vect = SELECT(mem, {"NM_CANDIDATO=MARIA DO SOCORRO NASCIMENTO BARBOSA"});
-        std::cout << mem.blockAccessCount << std::endl << vect[0].NM_CANDIDATO << std::endl;
+        //std::cout << mem.blockAccessCount << std::endl << vect[0].NM_CANDIDATO << std::endl;
 
+        //Teste Select Range
+        vect = SELECT(mem, {"NM_CANDIDATO=[MARIA DO CARMO OLIVEIRA NAFALSKI:MARIA DO SOCORRO NASCIMENTO BARBOSA]"});
+//        for(int i=0; i < vect.size(); i++){
+//            std::cout << vect[i].NM_CANDIDATO << std::endl;
+//        }
+
+        //Teste Multiplos Registros
+        vect = SELECT(mem, {"NM_CANDIDATO={MARIA DO CARMO OLIVEIRA NAFALSKI,MARIA DO SOCORRO NASCIMENTO BARBOSA}"});
+        for(int i=0; i < vect.size(); i++){
+            std::cout << vect[i].NM_CANDIDATO << std::endl;
+        }
 
         vhdf::closeDisk(vhd.getDiskId());
 
