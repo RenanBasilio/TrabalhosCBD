@@ -16,7 +16,7 @@
 namespace OrganizacaoHash
 {
     MemoryWrapper<DataBlock> initialize() {
-        remove("VHDOrdenado.vhd");
+        remove("VHDHash.vhd");
         MemoryWrapper<DataBlock> mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDHash.vhd", sizeof(Registro)*40000, true));
         HEAD<Registro> schema = HEAD<Registro>();
         schema.org = HASH;
@@ -71,7 +71,9 @@ namespace OrganizacaoHash
             int insertpos = mem->getPrimeiroRegistroDispEscrita();
             while (insertpos == -1) {
                 if (mem->overflow == 0) {
-                    mem.loadBlock(schema.ultimo_bloco+1);
+                    mem->overflow = schema.ultimo_bloco++;
+                    mem.commitBlock();
+                    mem.loadBlock(mem->overflow);
                     mem->initialize();
                     insertpos = 0;
                 } else {
