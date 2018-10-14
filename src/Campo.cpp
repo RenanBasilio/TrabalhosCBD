@@ -74,16 +74,16 @@ bool comparaCampo( Campo campo, void* reg, std::string valor, const std::string 
                     if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) == 0) return false;
                     break;
                 case MENOR:
-                    if ( std::char_traits<char>::compare(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) < 0) return true;
+                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) < 0) return true;
                     break;
                 case MAIOR:
-                    if ( std::char_traits<char>::compare(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) > 0) return true;
+                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) > 0) return true;
                     break;
                 case MEIG:
-                    if ( std::char_traits<char>::compare(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) <= 0) return true;
+                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) <= 0) return true;
                     break;
                 case MAIG:
-                    if ( std::char_traits<char>::compare(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) >= 0) return true;
+                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) >= 0) return true;
                     break;
             }
             break;
@@ -121,4 +121,27 @@ bool comparaCampo( Campo campo, void* reg, std::string valor, const std::string 
             return false;
     }
     return false;
+}
+
+std::string getValorCampo(Campo campo, void* reg) {
+    std::string valor = "";
+    void* val_ptr = reinterpret_cast<char*>(reg) + campo.pos_relativa;
+    
+    switch (campo.tipo) {
+        case INT:
+            valor = std::to_string(*(int*)val_ptr);
+            break;
+        case BIGINT:
+            valor = std::to_string(*(size_t*)val_ptr);
+            break;
+        case CHAR:
+            valor = std::string((char*)val_ptr, campo.tamanho);
+            break;
+        case BOOL:
+            *(bool*)val_ptr == true? valor = "S" : valor = "N";
+            break;
+        default:
+            throw std::runtime_error("NotImplementedException");
+    }
+    return valor;
 }

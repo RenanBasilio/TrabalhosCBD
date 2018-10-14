@@ -42,6 +42,7 @@ namespace OrganizacaoHeap
                 if (block_changed) mem.commitBlock();
                 blocos_processados++;
                 mem.loadBlock(pos_inicial+blocos_processados);
+                if (mem.getLoadedBlockId() > schema.ultimo_bloco) mem->initialize();
                 block_changed = false;
                 regs_processados = mem->getPrimeiroRegistroDispEscrita();
             }
@@ -55,6 +56,7 @@ namespace OrganizacaoHeap
                     if (block_changed) mem.commitBlock();
                     blocos_processados++;
                     mem.loadBlock(pos_inicial+blocos_processados);
+                    if (mem.getLoadedBlockId() > schema.ultimo_bloco) mem->initialize();
                     block_changed = false;
                     regs_processados = mem->getPrimeiroRegistroDispEscrita();
                 }
@@ -62,8 +64,10 @@ namespace OrganizacaoHeap
         }
         mem.commitBlock();
 
-        schema.ultimo_bloco = pos_inicial+blocos_processados;
-        vhdf::writeBlock(mem.getDiskId(), 0, &schema);
+        if (schema.ultimo_bloco != pos_inicial+blocos_processados) {
+            schema.ultimo_bloco = pos_inicial+blocos_processados;
+            vhdf::writeBlock(mem.getDiskId(), 0, &schema);
+        }
 
         return true;
     }

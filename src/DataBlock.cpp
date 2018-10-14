@@ -35,3 +35,7 @@ int DataBlock::getPrimeiroRegistroDispEscrita() {
 void DataBlock::deleteRegistro(int index) {
     registrosEscritos.reset(index);
 }
+
+void DataBlock::initialize() {
+    registrosEscritos.reset();
+}

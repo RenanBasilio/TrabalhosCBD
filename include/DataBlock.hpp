@@ -26,4 +26,6 @@ public:
         return constexpr_ceil(sizeof(DataBlock::registrosEscritos)/8);
     }
 
+    void initialize();
+
 };

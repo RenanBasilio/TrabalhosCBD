@@ -32,5 +32,10 @@ public:
         return disk;
     }
 
+    size_t getLoadedBlockId() {
+        if (!blockNull) return blockId;
+        else return 0;
+    }
+
     T* operator->() {return &block;};
 };

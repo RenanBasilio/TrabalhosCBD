@@ -16,12 +16,11 @@ private:
     // Timestamps relevantes à base
 public:
     size_t primeiro_bloco, ultimo_bloco;
-    unsigned int  tamanho, regs_por_bloco, offset;
+    unsigned int  tamanho, regs_por_bloco, offset, chave;
     size_t ptr_registros_deletados;
     Timestamp criacao, alteracao;
     int nCampos;
     Campo campos[T::nCampos()];
-    int campo_ordenacao;
     Organizacao org;
 
     HEAD() {
