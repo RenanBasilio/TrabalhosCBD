@@ -15,7 +15,7 @@ private:
     // Ponteiros para estruturas secundárias como o identificador de registros deletados
     // Timestamps relevantes à base
 public:
-    size_t primeiro_bloco, ultimo_bloco;
+    size_t primeiro_bloco, ultimo_bloco, blocos_hash;
     unsigned int  tamanho, regs_por_bloco, offset, chave;
     size_t ptr_registros_deletados;
     Timestamp criacao, alteracao;

@@ -41,9 +41,6 @@ namespace OrganizacaoOrdenada
 
         size_t bloco = schema.ultimo_bloco;
 
-        mem.loadBlock(bloco);
-        int regs_processados = mem->getPrimeiroRegistroDispEscrita();
-        bool block_changed = false;
         int insertpos;
 
         for (int i = 0; i<registros.size(); i++) {

@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     std::cout << "Armazenamento heap... "; 
     //OrganizacaoHeap::runTests();
     std::cout << "Done" << std::endl << "Armazenamento ordenado...";
-    OrganizacaoOrdenada::runTests();
+    //OrganizacaoOrdenada::runTests();
     std::cout << "Done" << std::endl << "Armazenamento em hash...";
     OrganizacaoHash::runTests();
     std::cout << "Done" << std::endl;

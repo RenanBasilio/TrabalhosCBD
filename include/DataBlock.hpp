@@ -8,7 +8,9 @@ class DataBlock {
 public:
     std::bitset<Registro::nPorBloco()> registrosEscritos;
 
-    char data[vhdf::BLOCK_SIZE-sizeof(DataBlock::registrosEscritos)];
+    char data[vhdf::BLOCK_SIZE-sizeof(DataBlock::registrosEscritos)-sizeof(size_t)];
+
+    size_t overflow = 0;
 
     // Recupere um registro de um bloco
     Registro getRegistro(int index);

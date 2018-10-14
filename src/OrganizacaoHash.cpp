@@ -1,41 +1,125 @@
 #include <iostream>
-#include <Campo.hpp>
-#include <vhdf.hpp>
+#include <string>
+#include <cstring>
+#include <map>
+#include <HEAD.hpp>
+#include <Registro.hpp>
 #include <MemoryWrapper.hpp>
 #include <DataBlock.hpp>
-#include <Registro.hpp>
+#include <vhdf.hpp>
+#include <Campo.hpp>
+#include <exception>
+#include <Query.hpp>
+#include <algorithm>
+#include <OrganizacaoHash.hpp>
 
 namespace OrganizacaoHash
 {
-    int vhd;
-    MemoryWrapper<DataBlock> mem;
-
-    void initialize() {
-        //mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDHeap.vhd", sizeof(Registro)*40000, true));
-        vhd = vhdf::openDisk("testdisk.vhd", sizeof(Registro)*40000, true);
-        mem = MemoryWrapper<DataBlock>(vhd);
+    MemoryWrapper<DataBlock> initialize() {
+        remove("VHDOrdenado.vhd");
+        MemoryWrapper<DataBlock> mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDHash.vhd", sizeof(Registro)*40000, true));
+        HEAD<Registro> schema = HEAD<Registro>();
+        schema.org = HASH;
+        schema.primeiro_bloco = 1;
+        schema.ultimo_bloco = 27;
+        schema.blocos_hash = schema.ultimo_bloco - schema.primeiro_bloco;
+        //schema.chave = 9;   // SQ_CANDIDATO
+        schema.chave = 11; // NM_CANDIDATO
+        mem.loadBlock(1);
+        mem->initialize();
+        mem.commitBlock();
+        vhdf::writeBlock(mem.getDiskId(), 0, &schema);
+        return mem;
     }
 
-    void cleanup() {
-        vhdf::closeDisk(vhd);
+    void cleanup(MemoryWrapper<DataBlock> mem) {
+        vhdf::closeDisk(mem.getDiskId());
+    }
+
+    bool INSERT(MemoryWrapper<DataBlock> mem, std::vector<Registro> registros) {
+
+        HEAD<Registro> schema;
+        vhdf::readBlock(mem.getDiskId(), 0, &schema);
+
+        for (int i = 0; i<registros.size(); i++) {
+
+            Campo chave = schema.campos[schema.chave];
+            //std::cout << chave.nm_campo << std::endl;
+            std::string valor = getValorCampo(chave, &registros[i]);
+
+            // Funcao hash
+            size_t bloco;
+            switch (chave.tipo) {
+                case INT:
+                    bloco = hashingFunc(schema.blocos_hash, std::stoi(valor));
+                    break;
+                case BIGINT:
+                    bloco = hashingFunc(schema.blocos_hash, std::atoll(valor.c_str()));
+                    break;
+                case CHAR:
+                    bloco = hashingFunc(schema.blocos_hash, valor);
+                    break;
+                case BOOL:
+                    break;
+            }
+
+            mem.loadBlock(bloco+schema.primeiro_bloco);
+
+            // Operação de Insert
+            bool insertOK = false;
+
+            int insertpos = mem->getPrimeiroRegistroDispEscrita();
+            while (insertpos == -1) {
+                if (mem->overflow == 0) {
+                    mem.loadBlock(schema.ultimo_bloco+1);
+                    mem->initialize();
+                    insertpos = 0;
+                } else {
+                    mem.loadBlock(mem->overflow);
+                    insertpos = mem->getPrimeiroRegistroDispEscrita();
+                }
+            }
+            mem->setRegistro(insertpos, registros[i]);
+            mem.commitBlock();
+        }
+
+        vhdf::writeBlock(mem.getDiskId(), 0, &schema);
+
+        return true;
     }
 
     void runTests() {
-        initialize();
-        /*try {
-            std::vector<Registro> vect;
-            //vect= select({"ANO_ELEICAO=2018", "NR_CANDIDATO=12"});
-            vect = select({"ST_REELEICAO=S"});
-            vect = select({"ST_DECLARAR_BENS=S"});
-            //vect = select({"CD_SIT_TOT_TURNO=-1"});
-            vect = select({"NR_PROCESSO=06017561520186160000"});
-            //std::vector<Registro> vect = select({"ANO_ELEICAO=2018", "CD_TIPO_ELEICAO=2", "NR_TURNO=1", "CD_ELEICAO=297"});
-            std::cout << "It WORKS!" << std::endl;
+        MemoryWrapper<DataBlock> mem = initialize();
+
+        std::vector<Registro> inserts = std::vector<Registro>();
+        MemoryWrapper<DataBlock> vhd(vhdf::openDisk("testdisk.vhd"));
+        /*
+        // Teste com um único insert
+        vhd.loadBlock(1);
+        inserts.push_back(vhd->getRegistro(1));
+
+        INSERT(mem, inserts);
+
+        // Teste com 5 inserts
+        inserts.clear();
+        vhd.loadBlock(1);
+        for (int i = 0; i < 5; i++) {
+            inserts.push_back(vhd->getRegistro(i));
         }
-        catch (std::invalid_argument e) {
-            std::cout << "Erro: " << e.what() << std::endl;
-        }*/
-        cleanup();
+        INSERT(mem, inserts);
+        */
+
+        // Teste com 10 inserts
+        inserts.clear();
+        for (int i = 0; i < 1000; i++) {
+            vhd.loadBlock(1+i);
+            for (int j = 0; j < 10; j++) {
+                inserts.push_back(vhd->getRegistro(j));
+            }
+        }
+        INSERT(mem, inserts);
+
+        cleanup(mem);
     };
 
 }
