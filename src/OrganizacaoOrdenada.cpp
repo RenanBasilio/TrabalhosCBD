@@ -60,20 +60,20 @@ namespace OrganizacaoOrdenada
             while (lower < upper) {
 
                 middle = (upper+lower+1)/2;
-
                 mem.loadBlock(middle);
 
                 Registro reg = mem->getRegistro(0);
 
                 if ( comparaCampo(chave, &reg, valor, ">") ) {
                     upper = middle-1;
-                } 
+                }
                 else {
                     lower = middle;
                 }
             }
-            mem.loadBlock((lower+upper)/2);
 
+            middle = (lower+upper)/2;
+            mem.loadBlock(middle);
             // Operação de Insert
             Registro held;
             bool insertOK = false;
@@ -162,30 +162,24 @@ namespace OrganizacaoOrdenada
                     if(strcmp(targets[k].campo.nm_campo, chave.nm_campo) == 0){
                         size_t upper = schema.ultimo_bloco;
                         size_t lower = schema.primeiro_bloco;
-                        size_t middle = (upper+lower)/2;
-                        size_t window = upper - lower;
-
+                        size_t middle;
                         std::string valor = targets[k].valor[0];
 
-                        while (window > 1) {
+                        while (lower < upper) {
 
+                            middle = (upper+lower+1)/2;
                             mem.loadBlock(middle);
 
                             Registro reg = mem->getRegistro(0);
 
-                            std::cout << middle << std::endl;
-                            if ( comparaCampo(chave, &reg, valor, "<=") ) {
-                                upper = middle;
-                                middle = (upper+lower)/2;
-                                window = upper-lower;
+                            if ( comparaCampo(chave, &reg, valor, ">") ) {
+                                upper = middle-1;
                             }
                             else {
                                 lower = middle;
-                                middle = (upper+lower)/2;
-                                window = upper-lower;
                             }
                         }
-                        mem.loadBlock(middle);
+                        mem.loadBlock((lower+upper)/2);
                         for (int j = 0; j < mem->registrosEscritos.size(); j++) {
                             reg = mem->getRegistro(j);
                             std::cout << reg.NM_CANDIDATO << std::endl;
@@ -244,11 +238,11 @@ namespace OrganizacaoOrdenada
             }
         }
         INSERT(mem, inserts);
-        mem.blockAccessCount = 0;
+        //mem.blockAccessCount = 0;
 
         //Teste Select
-        vect = SELECT(mem, {"NM_CANDIDATO=ELLYS DAYANE ALVES MELO"});
-        std::cout << mem.blockAccessCount << vect[0].NM_CANDIDATO << std::endl;
+        vect = SELECT(mem, {"NM_CANDIDATO=MARIA DO SOCORRO NASCIMENTO BARBOSA"});
+        std::cout << mem.blockAccessCount << std::endl << vect[0].NM_CANDIDATO << std::endl;
 
 
         vhdf::closeDisk(vhd.getDiskId());
