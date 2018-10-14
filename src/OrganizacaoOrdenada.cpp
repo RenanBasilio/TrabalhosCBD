@@ -35,7 +35,7 @@ namespace OrganizacaoOrdenada
     }
 
     bool INSERT(MemoryWrapper<DataBlock> mem, std::vector<Registro> registros) {
-
+        int count = 0;
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
 
@@ -58,6 +58,7 @@ namespace OrganizacaoOrdenada
 
                 middle = (upper+lower+1)/2;
                 mem.loadBlock(middle);
+                count++;
 
                 Registro reg = mem->getRegistro(0);
 
@@ -71,6 +72,7 @@ namespace OrganizacaoOrdenada
 
             middle = (lower+upper)/2;
             mem.loadBlock(middle);
+            count++;
             // Operação de Insert
             Registro held;
             bool insertOK = false;
@@ -93,6 +95,7 @@ namespace OrganizacaoOrdenada
             }
             if (!insertOK) {
                 mem.loadBlock(middle+1);
+                count++;
                 if (mem.getLoadedBlockId() > schema.ultimo_bloco) mem->initialize();
                 if (mem->isRegistroEscrito(0)) {
                     held = mem->getRegistro(0);
@@ -118,8 +121,10 @@ namespace OrganizacaoOrdenada
                         if(stop) break;
                     }
                     mem.commitBlock();
+                    count++;
                     if (stop) break;
                     mem.loadBlock(j+1);
+                    count++;
                     insertpos = 0;
                     if (mem.getLoadedBlockId() > schema.ultimo_bloco) {
                         mem->initialize();
@@ -128,11 +133,12 @@ namespace OrganizacaoOrdenada
                     bloco++;
                 }
             }
-            else mem.commitBlock();
+            else{ mem.commitBlock(); count++;
+            }
         }
 
         vhdf::writeBlock(mem.getDiskId(), 0, &schema);
-
+        std::cout << count << std::endl;
         return true;
     }
 
@@ -146,6 +152,7 @@ namespace OrganizacaoOrdenada
         std::vector<Target> targets = parseQuery(schema, params);
         Registro reg;
         Campo chave = schema.campos[schema.chave];
+        int count = 0;
 
         //std::cout << "Comparing against database members..." << std::endl;
         for (int k = 0; k < targets.size(); k++) {
@@ -160,6 +167,7 @@ namespace OrganizacaoOrdenada
                         while (lower < upper) {
                             middle = (upper+lower+1)/2;
                             mem.loadBlock(middle);
+                            count++;
                             Registro reg = mem->getRegistro(0);
                             if ( comparaCampo(chave, &reg, valor, ">") ) {
                                 upper = middle-1;
@@ -169,6 +177,7 @@ namespace OrganizacaoOrdenada
                             }
                         }
                         mem.loadBlock((lower+upper)/2);
+                        count++;
                         for (int j = 0; j < mem->registrosEscritos.size(); j++) {
                             reg = mem->getRegistro(j);
                             if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0])){
@@ -207,6 +216,7 @@ namespace OrganizacaoOrdenada
                                         mem->deleteRegistro(j);
                                     }
                                     mem.commitBlock();
+                                    count++;
                                 }
                             }
                         }
@@ -225,6 +235,7 @@ namespace OrganizacaoOrdenada
                             while (lower < upper) {
                                 middle = (upper+lower+1)/2;
                                 mem.loadBlock(middle);
+                                count++;
                                 Registro reg = mem->getRegistro(0);
                                 if ( comparaCampo(chave, &reg, valor, ">") ) {
                                     upper = middle-1;
@@ -234,6 +245,7 @@ namespace OrganizacaoOrdenada
                                 }
                             }
                             mem.loadBlock((lower+upper)/2);
+                            count++;
                             for (int j = 0; j < mem->registrosEscritos.size(); j++) {
                                 reg = mem->getRegistro(j);
                                 if (comparaCampo(targets[k].campo, &reg, targets[k].valor[v])){
@@ -272,6 +284,7 @@ namespace OrganizacaoOrdenada
                                             mem->deleteRegistro(j);
                                         }
                                         mem.commitBlock();
+                                        count++;
                                     }
                                 }
                             }
@@ -288,6 +301,7 @@ namespace OrganizacaoOrdenada
                         while (lower < upper) {
                             middle = (upper+lower+1)/2;
                             mem.loadBlock(middle);
+                            count++;
                             Registro reg = mem->getRegistro(0);
                             if ( comparaCampo(chave, &reg, valor, ">") ) {
                                 upper = middle-1;
@@ -300,6 +314,7 @@ namespace OrganizacaoOrdenada
                         int w = 0;
                         while(inrange) {
                             mem.loadBlock(w + (lower + upper) / 2);
+                            count++;
                             for (int j = 0; j < mem->registrosEscritos.size(); j++) {
                                 reg = mem->getRegistro(j);
                                 if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0], ">=") &&
@@ -340,6 +355,7 @@ namespace OrganizacaoOrdenada
             }
         }
 
+        std::cout << count << std::endl;
         return true;
     }
 
@@ -355,6 +371,7 @@ namespace OrganizacaoOrdenada
 
         Registro reg;
         Campo chave = schema.campos[schema.chave];
+        int count = 0;
 
         //std::cout << "Comparing against database members..." << std::endl;
         for (int k = 0; k < targets.size(); k++) {
@@ -369,6 +386,7 @@ namespace OrganizacaoOrdenada
                         while (lower < upper) {
                             middle = (upper+lower+1)/2;
                             mem.loadBlock(middle);
+                            count++;
                             Registro reg = mem->getRegistro(0);
                             if ( comparaCampo(chave, &reg, valor, ">") ) {
                                 upper = middle-1;
@@ -378,6 +396,7 @@ namespace OrganizacaoOrdenada
                             }
                         }
                         mem.loadBlock((lower+upper)/2);
+                        count++;
                         for (int j = 0; j < mem->registrosEscritos.size(); j++) {
                             reg = mem->getRegistro(j);
                             if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0])){
@@ -422,6 +441,7 @@ namespace OrganizacaoOrdenada
                             while (lower < upper) {
                                 middle = (upper+lower+1)/2;
                                 mem.loadBlock(middle);
+                                count++;
                                 Registro reg = mem->getRegistro(0);
                                 if ( comparaCampo(chave, &reg, valor, ">") ) {
                                     upper = middle-1;
@@ -431,6 +451,7 @@ namespace OrganizacaoOrdenada
                                 }
                             }
                             mem.loadBlock((lower+upper)/2);
+                            count++;
                             for (int j = 0; j < mem->registrosEscritos.size(); j++) {
                                 reg = mem->getRegistro(j);
                                 if (comparaCampo(targets[k].campo, &reg, targets[k].valor[v])){
@@ -473,6 +494,7 @@ namespace OrganizacaoOrdenada
                         while (lower < upper) {
                             middle = (upper+lower+1)/2;
                             mem.loadBlock(middle);
+                            count++;
                             Registro reg = mem->getRegistro(0);
                             if ( comparaCampo(chave, &reg, valor, ">") ) {
                                 upper = middle-1;
@@ -485,6 +507,7 @@ namespace OrganizacaoOrdenada
                         int w = 0;
                         while(inrange) {
                             mem.loadBlock(w + (lower + upper) / 2);
+                            count++;
                             for (int j = 0; j < mem->registrosEscritos.size(); j++) {
                                 reg = mem->getRegistro(j);
                                 if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0], ">=") &&
@@ -525,6 +548,7 @@ namespace OrganizacaoOrdenada
             }
         }
 
+        std::cout << count << std::endl;
         return ret_regs;
     }
 
@@ -537,20 +561,6 @@ namespace OrganizacaoOrdenada
         MemoryWrapper<DataBlock> vhd(vhdf::openDisk("testdisk.vhd"));
         std::vector<Registro> vect;
 
-//        // Teste com um único insert
-//        vhd.loadBlock(1);
-//        inserts.push_back(vhd->getRegistro(1));
-//
-//        INSERT(mem, inserts);
-
-//        // Teste com 5 inserts
-//        inserts.clear();
-//        vhd.loadBlock(1);
-//        for (int i = 0; i < 5; i++) {
-//            inserts.push_back(vhd->getRegistro(i));
-//        }
-//        INSERT(mem, inserts);
-
         // Teste com 1000 inserts
         inserts.clear();
         for (int i = 0; i < 1000; i++) {
@@ -560,23 +570,62 @@ namespace OrganizacaoOrdenada
             }
         }
         INSERT(mem, inserts);
-        //mem.blockAccessCount = 0;
 
-        //Teste Select
+        std::cout << 'a' << std::endl;
+        //INSERT UNICO TEST
+        Registro reg;
+        strncpy(reg.NM_CANDIDATO, "HELLO WORLD", sizeof(reg.NM_CANDIDATO));
+        INSERT(mem, {reg});
+
+        //INSERT DUPLO TEST
+        std::vector<Registro> reglist(2);
+        strncpy(reglist[0].NM_CANDIDATO, "ROBSON", sizeof(reg.NM_CANDIDATO));
+        strncpy(reglist[1].NM_CANDIDATO, "ANDERSON", sizeof(reg.NM_CANDIDATO));
+        INSERT(mem, reglist);
+
+        //SELECT UM VALOR TEST
+        vect = SELECT(mem, {"NM_CANDIDATO=HELLO WORLD"});
+
+        //SELECT MULTIPLOS REGISTROS
+        vect = SELECT(mem, {"NM_CANDIDATO={HELLO WORLD,MARIA DO SOCORRO NASCIMENTO BARBOSA}"});
+
+
+        //SELECT FAIXA
+        vect = SELECT(mem, {"NM_CANDIDATO=[MARIA DO CARMO OLIVEIRA NAFALSKI:MARIA DO SOCORRO NASCIMENTO BARBOSA]"});
+
+        //SELECT 2 VALORES FIXOS
         vect = SELECT(mem, {"NM_CANDIDATO=MARIA DO SOCORRO NASCIMENTO BARBOSA","ANO_ELEICAO=[2015:2020]","SG_UE=MA"});
-        std::cout << mem.blockAccessCount << std::endl << vect[0].NM_CANDIDATO << std::endl;
 
+        //DELETE UM REG
+        DELETE(mem, {"NM_CANDIDATO=HELLO WORLD"});
+
+        //DELETE MULTIPLOS REG
+        DELETE(mem, {"NM_CANDIDATO={robson,MARIA DO CARMO OLIVEIRA NAFALSKI}"});
+
+//        //DELETE FAIXA
+//        DELETE(mem, {"NR_PARTIDO=[10:12]"});
+//        std::cout << mem.blockAccessCount << std::endl;
+//        mem.blockAccessCount = 0;
+
+        //DELETE 2 VALORES FIXOS
         DELETE(mem, {"NM_CANDIDATO=MARIA DO SOCORRO NASCIMENTO BARBOSA","ANO_ELEICAO=[2015:2020]","SG_UE=MA"});
 
-        vect = SELECT(mem, {"NM_CANDIDATO=MARIA DO SOCORRO NASCIMENTO BARBOSA","ANO_ELEICAO=[2015:2020]","SG_UE=MA"});
-        std::cout << mem.blockAccessCount << std::endl << vect[0].NM_CANDIDATO << std::endl;
 
+
+
+//        //Teste Select
+//        vect = SELECT(mem, {"NM_CANDIDATO=MARIA DO SOCORRO NASCIMENTO BARBOSA","ANO_ELEICAO=[2015:2020]","SG_UE=MA"});
+//        std::cout << mem.blockAccessCount << std::endl << vect[0].NM_CANDIDATO << std::endl;
+//
+//        DELETE(mem, {"NM_CANDIDATO=MARIA DO SOCORRO NASCIMENTO BARBOSA,MARIA DO CARMO OLIVEIRA NAFALSKI","ANO_ELEICAO=[2015:2020]"});
+//
+//        vect = SELECT(mem, {"NM_CANDIDATO=MARIA DO SOCORRO NASCIMENTO BARBOSA,MARIA DO CARMO OLIVEIRA NAFALSKI"});
+//        std::cout << mem.blockAccessCount << std::endl << vect[0].NM_CANDIDATO << std::endl;
 //        //Teste Select Range
 //        vect = SELECT(mem, {"NM_CANDIDATO=[MARIA DO CARMO OLIVEIRA NAFALSKI:MARIA DO SOCORRO NASCIMENTO BARBOSA]","ANO_ELEICAO=[2015:2018]"});
 //        for(int i=0; i < vect.size(); i++){
 //           std::cout << vect[i].NM_CANDIDATO << std::endl;
 //        }
-
         //Teste Multiplos Registros
 //        vect = SELECT(mem, {"NM_CANDIDATO={MARIA DO CARMO OLIVEIRA NAFALSKI,MARIA DO SOCORRO NASCIMENTO BARBOSA}","ANO_ELEICAO=[2015:2020]"});
 //        for(int i=0; i < vect.size(); i++){
