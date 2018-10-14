@@ -10,18 +10,22 @@ private:
 
     bool blockNull = true;
     unsigned long long int blockId;
+
 public:
     MemoryWrapper() {};
     explicit MemoryWrapper(int i) { disk = i; };
+    int blockAccessCount = 0;
 
     void loadBlock(unsigned long long int index) {
         vhdf::readBlock(disk, index, &block);
         blockNull = false;
         blockId = index;
+        blockAccessCount++;
     };
 
     void commitBlock() {
         if (!blockNull) vhdf::writeBlock(disk, blockId, &block);
+        blockAccessCount++;
     }
 
     int getDiskId() {

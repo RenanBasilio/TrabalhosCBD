@@ -45,13 +45,13 @@ namespace OrganizacaoHeap
                 block_changed = false;
                 regs_processados = mem->getPrimeiroRegistroDispEscrita();
             }
-            if (!mem->isRegistroEscrito(i)) {
+            if (!mem->isRegistroEscrito(regs_processados)) {
                 mem->setRegistro(regs_processados, registros[i]);
                 block_changed = true;
             }
             else {
                 regs_processados = mem->getPrimeiroRegistroDispEscrita();
-                while (regs_processados != 1) {
+                while (regs_processados == -1) {
                     if (block_changed) mem.commitBlock();
                     blocos_processados++;
                     mem.loadBlock(pos_inicial+blocos_processados);
@@ -172,17 +172,72 @@ namespace OrganizacaoHeap
     void runTests() {
         initialize();
         try {
+
+            //INSERT UNICO TEST
             std::vector<Registro> vect;
             Registro reg;
             strncpy(reg.NM_CANDIDATO, "HELLO WORLD", sizeof(reg.NM_CANDIDATO));
-
             INSERT({reg});
+            std::cout << mem.blockAccessCount << std::endl;
+            mem.blockAccessCount = 0;
 
+            //INSERT DUPLO TEST
+            std::vector<Registro> reglist(20);
+            for(int i=0; i < 20; i++){
+                reglist[i].NR_PARTIDO = i;
+            }
+            INSERT(reglist);
+            std::cout << mem.blockAccessCount << std::endl;
+            mem.blockAccessCount = 0;
+
+            //SELECT UM VALOR TEST
             vect = SELECT({"NM_CANDIDATO=HELLO WORLD"});
+            std::cout << mem.blockAccessCount << std::endl;
+            vect = SELECT({"NM_CANDIDATO=AUGUSTO LUIZ DE LIMA"});
+            std::cout << mem.blockAccessCount << std::endl;
+            vect = SELECT({"NM_CANDIDATO=EDVALDO MOREIRA DE SINTRA"});
+            std::cout << mem.blockAccessCount << vect[0].NM_URNA_CANDIDATO << std::endl;
+            vect = SELECT({"NM_CANDIDATO=ODAIR JOSE FERREIRA"});
+            std::cout << mem.blockAccessCount << std::endl;
+            std::cout << mem.blockAccessCount/4 << std::endl;
+            mem.blockAccessCount = 0;
 
+            //SELECT MULTIPLOS REGISTROS
+            vect = SELECT({"NM_CANDIDATO={HELLO WORLD,CIRO FERREIRA GOMES}"});
+            std::cout << mem.blockAccessCount << vect[0].NM_CANDIDATO << vect[1].NM_CANDIDATO <<std::endl;
+            mem.blockAccessCount = 0;
+
+            //SELECT FAIXA
+            vect = SELECT({"NR_PARTIDO=[10:15]"});
+            std::cout << mem.blockAccessCount << vect[0].NR_PARTIDO << std::endl;
+            mem.blockAccessCount = 0;
+
+            //SELECT 2 VALORES FIXOS
+            vect = SELECT({"NR_PARTIDO=12","NM_CANDIDATO=CIRO FERREIRA GOMES"});
+            std::cout << mem.blockAccessCount << vect[0].NR_PARTIDO << std::endl;
+            mem.blockAccessCount = 0;
+
+            //DELETE UM REG
             DELETE({"NM_CANDIDATO=HELLO WORLD"});
+            std::cout << mem.blockAccessCount << std::endl;
+            mem.blockAccessCount = 0;
 
-            vect = SELECT({"NM_CANDIDATO=HELLO WORLD"});
+            //DELETE MULTIPLOS REG
+            DELETE({"NM_CANDIDATO={AUGUSTO LUIZ DE LIMA,ODAIR JOSE FERREIRA}"});
+            std::cout << mem.blockAccessCount << std::endl;
+            mem.blockAccessCount = 0;
+
+            //DELETE FAIXA
+            DELETE({"NR_PARTIDO=[10:12]"});
+            std::cout << mem.blockAccessCount << std::endl;
+            mem.blockAccessCount = 0;
+
+            //DELETE 2 VALORES FIXOS
+            DELETE({"NR_PARTIDO=12","NM_CANDIDATO=CIRO FERREIRA GOMES"});
+            std::cout << mem.blockAccessCount << std::endl;
+            mem.blockAccessCount = 0;
+
+
 
             //vect= select({"ANO_ELEICAO=2018", "NR_CANDIDATO=12"});
             //vect = select({"ST_REELEICAO=S"});
