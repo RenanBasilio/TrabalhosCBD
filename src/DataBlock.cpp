@@ -38,4 +38,5 @@ void DataBlock::deleteRegistro(int index) {
 
 void DataBlock::initialize() {
     registrosEscritos.reset();
+    overflow = 0;
 }

@@ -20,11 +20,11 @@ namespace OrganizacaoHeap
         return MemoryWrapper<DataBlock>(vhd);
     }
 
-    void cleanup(MemoryWrapper<DataBlock> mem) {
+    void cleanup(MemoryWrapper<DataBlock> &mem) {
         vhdf::closeDisk(mem.getDiskId());
     }
 
-    bool INSERT(MemoryWrapper<DataBlock> mem, std::vector<Registro> registros) {
+    bool INSERT(MemoryWrapper<DataBlock> &mem, std::vector<Registro> registros) {
 
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
@@ -74,7 +74,7 @@ namespace OrganizacaoHeap
     // Um select de comparacao simples pode ser feito usando params do tipo {"CAMPO=valor"}
     // Um select de comparacao em uma faixa pode ser feito usando params do tipo {"CAMPO=[min:max]"}
     // Um select de comparacao em um conjunto de valores pode ser feito usando params do tipo {"CAMPO={valor1,valor2}"}
-    std::vector<Registro> SELECT(MemoryWrapper<DataBlock> mem, std::vector<std::string> params) {
+    std::vector<Registro> SELECT(MemoryWrapper<DataBlock> &mem, std::vector<std::string> params) {
 
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
@@ -122,7 +122,7 @@ namespace OrganizacaoHeap
         return ret_regs;
     }
 
-    bool DELETE(MemoryWrapper<DataBlock> mem, std::vector<std::string> params) {
+    bool DELETE(MemoryWrapper<DataBlock> &mem, std::vector<std::string> params) {
         HEAD<Registro> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
 
