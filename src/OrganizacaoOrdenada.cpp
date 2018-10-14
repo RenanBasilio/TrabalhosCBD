@@ -27,6 +27,7 @@ namespace OrganizacaoOrdenada
         mem->initialize();
         mem.commitBlock();
         vhdf::writeBlock(mem.getDiskId(), 0, &schema);
+        return mem;
     }
 
     void cleanup(MemoryWrapper<DataBlock> mem) {
@@ -48,7 +49,7 @@ namespace OrganizacaoOrdenada
         for (int i = 0; i<registros.size(); i++) {
 
             Campo chave = schema.campos[schema.chave];
-
+            //std::cout << chave.nm_campo << std::endl;
             std::string valor = getValorCampo(chave, &registros[i]);
 
             // Busca binaria
@@ -141,34 +142,117 @@ namespace OrganizacaoOrdenada
         return true;
     }
 
+    // Um select de comparacao simples pode ser feito usando params do tipo {"CAMPO=valor"}
+    // Um select de comparacao em uma faixa pode ser feito usando params do tipo {"CAMPO=[min:max]"}
+    // Um select de comparacao em um conjunto de valores pode ser feito usando params do tipo {"CAMPO={valor1,valor2}"}
+    std::vector<Registro> SELECT(MemoryWrapper<DataBlock> mem, std::vector<std::string> params) {
+
+        HEAD<Registro> schema;
+        vhdf::readBlock(mem.getDiskId(), 0, &schema);
+
+        std::vector<Registro> ret_regs = std::vector<Registro>();
+
+        std::vector<Target> targets = parseQuery(schema, params);
+
+        Registro reg;
+        Campo chave = schema.campos[schema.chave];
+
+        //std::cout << "Comparing against database members..." << std::endl;
+        for (int k = 0; k < targets.size(); k++) {
+            switch (targets[k].tipo) {
+                case VALUE:
+                    std::cout<<schema.ultimo_bloco<<" "<<schema.primeiro_bloco<<std::endl;
+                    if(strcmp(targets[k].campo.nm_campo, chave.nm_campo) == 0){
+                        size_t upper = schema.ultimo_bloco;
+                        size_t lower = schema.primeiro_bloco;
+                        size_t middle = (upper+lower)/2;
+                        size_t window = upper - lower;
+
+                        std::string valor = targets[k].valor[0];
+
+                        while (window > 1) {
+
+                            mem.loadBlock(middle);
+
+                            Registro reg = mem->getRegistro(0);
+
+                            std::cout << middle << std::endl;
+                            if ( comparaCampo(chave, &reg, valor, "<=") ) {
+                                upper = middle;
+                                middle = (upper+lower)/2;
+                                window = upper-lower;
+                            }
+                            else {
+                                lower = middle;
+                                middle = (upper+lower)/2;
+                                window = upper-lower;
+                            }
+                        }
+                        mem.loadBlock(middle);
+                        for (int j = 0; j < mem->registrosEscritos.size(); j++) {
+                            reg = mem->getRegistro(j);
+                            std::cout << reg.NM_CANDIDATO << std::endl;
+                            if (comparaCampo(targets[k].campo, &reg, targets[k].valor[0])){
+                                std::cout << "oi" << std::endl;
+                                ret_regs.push_back(reg);
+                            }
+                        }
+                    }
+                    else{
+
+                    }
+                    break;
+                case SET:
+
+                    break;
+                case RANGE:
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return ret_regs;
+    }
+
 
     void runTests() {
         MemoryWrapper<DataBlock> mem = initialize();
 
         std::vector<Registro> inserts = std::vector<Registro>();
         MemoryWrapper<DataBlock> vhd(vhdf::openDisk("testdisk.vhd"));
-        // Teste com um único insert
-        vhd.loadBlock(1);
-        inserts.push_back(vhd->getRegistro(1));
-        INSERT(mem, inserts);
+        std::vector<Registro> vect;
 
-        // Teste com 5 inserts
-        inserts.clear();
-        vhd.loadBlock(2);
-        for (int i = 0; i < 5; i++) {
-            inserts.push_back(vhd->getRegistro(i));
-        }
-        INSERT(mem, inserts);
+//        // Teste com um único insert
+//        vhd.loadBlock(1);
+//        inserts.push_back(vhd->getRegistro(1));
+//
+//        INSERT(mem, inserts);
+
+//        // Teste com 5 inserts
+//        inserts.clear();
+//        vhd.loadBlock(1);
+//        for (int i = 0; i < 5; i++) {
+//            inserts.push_back(vhd->getRegistro(i));
+//        }
+//        INSERT(mem, inserts);
 
         // Teste com 10 inserts
         inserts.clear();
-        for (int i = 0; i < 1; i++) {
-            vhd.loadBlock(3+i);
+        for (int i = 0; i < 1000; i++) {
+            vhd.loadBlock(1+i);
             for (int j = 0; j < 10; j++) {
                 inserts.push_back(vhd->getRegistro(j));
             }
         }
         INSERT(mem, inserts);
+        mem.blockAccessCount = 0;
+
+        //Teste Select
+        vect = SELECT(mem, {"NM_CANDIDATO=ELLYS DAYANE ALVES MELO"});
+        std::cout << mem.blockAccessCount << vect[0].NM_CANDIDATO << std::endl;
+
 
         vhdf::closeDisk(vhd.getDiskId());
 

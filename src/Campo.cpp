@@ -2,6 +2,7 @@
 #include <Util.hpp>
 #include <Registro.hpp>
 #include <exception>
+#include <stdexcept>
 
 bool comparaCampo( Campo campo, void* reg, std::string valor, const std::string &opr) {
     void* cmp_ptr = nullptr;
