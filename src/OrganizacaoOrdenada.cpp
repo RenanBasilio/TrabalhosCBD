@@ -55,27 +55,24 @@ namespace OrganizacaoOrdenada
             // Busca binaria
             size_t upper = schema.ultimo_bloco;
             size_t lower = schema.primeiro_bloco;
-            size_t middle = (upper+lower)/2;
-            size_t window = upper - lower;
+            size_t middle;
 
-            while (window > 1) {
+            while (lower < upper) {
+
+                middle = (upper+lower+1)/2;
 
                 mem.loadBlock(middle);
 
                 Registro reg = mem->getRegistro(0);
 
-                if ( comparaCampo(chave, &reg, valor, "<=") ) {
-                    upper = middle;
-                    middle = (upper+lower)/2;
-                    window = upper-lower;
+                if ( comparaCampo(chave, &reg, valor, ">") ) {
+                    upper = middle-1;
                 } 
                 else {
                     lower = middle;
-                    middle = (upper+lower)/2;
-                    window = upper-lower;
                 }
             }
-            mem.loadBlock(middle);
+            mem.loadBlock((lower+upper)/2);
 
             // Operação de Insert
             Registro held;

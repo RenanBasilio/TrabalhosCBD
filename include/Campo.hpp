@@ -21,6 +21,8 @@ public:
     ~Campo() {};
 };
 
+
+// Retorna true se o valor do campo no registro eh ops em relacao ao valor
 bool comparaCampo( Campo campo, void* registro, std::string valor, const std::string &opr = "==");
 
 std::string getValorCampo(Campo campo, void* reg);
