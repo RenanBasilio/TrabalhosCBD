@@ -312,6 +312,7 @@ namespace OrganizacaoHash
                                 }
                                 if (match == targets.size()) {
                                     mem->deleteRegistro(i);
+                                    mem.commitBlock();
                                     blockchanged = true;
                                 }
                             }
@@ -362,6 +363,7 @@ namespace OrganizacaoHash
                                     }
                                     if (match == targets.size()) {
                                         mem->deleteRegistro(i);
+                                        mem.commitBlock();
                                         blockchanged = true;
                                     }
                                 }
@@ -413,6 +415,7 @@ namespace OrganizacaoHash
                                     }
                                     if (match == targets.size()) {
                                         mem->deleteRegistro(i);
+                                        mem.commitBlock();
                                         blockchanged = true;
                                     }
                                 }
@@ -539,8 +542,8 @@ namespace OrganizacaoHash
         mem.blockAccessCount = 0;
 
         //SELECT FAIXA
-        vect = SELECT(mem, {"NM_CANDIDATO=[X:Y]"});
-        std::cout << "SELECT NM_CANDIDATO=[X:Y] :" << mem.blockAccessCount <<std::endl;
+        vect = SELECT(mem, {"NR_PARTIDO=[10:12]"});
+        std::cout << "SELECT NR_PARTIDO=[10:12] :" << mem.blockAccessCount <<std::endl;
         mem.blockAccessCount = 0;
 
         //SELECT 2 VALORES FIXOS

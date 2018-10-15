@@ -195,6 +195,7 @@ namespace OrganizacaoHeap
             mem.blockAccessCount = 0;
 
             //SELECT UM VALOR TEST
+            
             vect = SELECT(mem, {"NM_CANDIDATO=HELLO WORLD"});
             std::cout << "SELECT NM_CANDIDATO=HELLO WORLD: "<< mem.blockAccessCount << std::endl;
             vect = SELECT(mem, {"NM_CANDIDATO=AUGUSTO LUIZ DE LIMA"});
@@ -203,8 +204,13 @@ namespace OrganizacaoHeap
             std::cout << "SELECT NM_CANDIDATO=EDVALDO MOREIRA DE SINTRA: " << mem.blockAccessCount << vect[0].NM_URNA_CANDIDATO << std::endl;
             vect = SELECT(mem, {"NM_CANDIDATO=ODAIR JOSE FERREIRA"});
             std::cout << "SELECT NM_CANDIDATO=ODAIR JOSE FERREIRA :" << mem.blockAccessCount << std::endl;
-            std::cout << mem.blockAccessCount/4 << std::endl;
+            vect = SELECT(mem, {"NM_CANDIDATO=IDEVANIR ARCANJO DE SOUZA"});
+            std::cout << "SELECT NM_CANDIDATO=IDEVANIR ARCANJO DE SOUZA: " << mem.blockAccessCount << std::endl;
+            vect = SELECT(mem, {"NM_CANDIDATO=CELIO DA SILVA SANTOS"});
+            std::cout << "SELECT NM_CANDIDATO=CELIO DA SILVA SANTOS: " << mem.blockAccessCount << std::endl;
+            std::cout << mem.blockAccessCount/6 << std::endl;
             mem.blockAccessCount = 0;
+
 
             //SELECT MULTIPLOS REGISTROS
             vect = SELECT(mem, {"NM_CANDIDATO={HELLO WORLD,CIRO FERREIRA GOMES}"});

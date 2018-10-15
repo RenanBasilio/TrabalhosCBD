@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
     std::cout << "Executando testes..." << std::endl; 
     std::cout << "Formato: [Nome do Teste: número de acessos a bloco]" << std::endl;
     std::cout << "Armazenamento heap... " << std::endl; 
-    //OrganizacaoHeap::runTests();
+    OrganizacaoHeap::runTests();
     std::cout << "Done" << std::endl; 
     std::cout << "Armazenamento ordenado..." << std::endl;
     //OrganizacaoOrdenada::runTests();
