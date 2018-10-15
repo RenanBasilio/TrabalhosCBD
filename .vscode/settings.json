@@ -45,6 +45,15 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "cstdarg": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "array": "cpp",
+        "*.tcc": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cwctype": "cpp",
+        "deque": "cpp",
+        "unordered_map": "cpp",
+        "functional": "cpp",
+        "sstream": "cpp"
     }
 }

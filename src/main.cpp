@@ -34,12 +34,15 @@ int main(int argc, char const *argv[])
     parseStream(ifs, vhd, 1);
     std::cout << "Done" << std::endl;
 
-    std::cout << "Executando testes..." << std::endl;
-    std::cout << "Armazenamento heap... "; 
+    std::cout << "Executando testes..." << std::endl; 
+    std::cout << "Formato: [Nome do Teste: número de acessos a bloco]" << std::endl;
+    std::cout << "Armazenamento heap... " << std::endl; 
     //OrganizacaoHeap::runTests();
-    std::cout << "Done" << std::endl << "Armazenamento ordenado...";
+    std::cout << "Done" << std::endl; 
+    std::cout << "Armazenamento ordenado..." << std::endl;
     //OrganizacaoOrdenada::runTests();
-    std::cout << "Done" << std::endl << "Armazenamento em hash...";
+    std::cout << "Done" << std::endl;
+    std::cout << "Armazenamento em hash..." << std::endl;
     OrganizacaoHash::runTests();
     std::cout << "Done" << std::endl;
 

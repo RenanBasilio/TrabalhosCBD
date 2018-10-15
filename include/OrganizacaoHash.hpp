@@ -3,7 +3,7 @@
 #include <Registro.hpp>
 #include <DataBlock.hpp>
 #include <algorithm>
-
+#include <cmath>
 
 namespace OrganizacaoHash
 {
