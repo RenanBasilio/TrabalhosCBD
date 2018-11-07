@@ -1,9 +1,14 @@
-#include <MemoryWrapper.hpp>
-#include <Util.hpp>
-#include <Registro.hpp>
-#include <DataBlock.hpp>
+#pragma once
 
-namespace OrganizacaoHeap
+#include <Campo.hpp>
+#include <DataBlock.hpp>
+#include <MemoryWrapper.hpp>
+#include <Registro.hpp>
+#include <Schema.hpp>
+#include <Util.hpp>
+#include <Query.hpp>
+
+namespace Heap
 {
     void runTests();
 

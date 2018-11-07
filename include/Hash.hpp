@@ -1,11 +1,17 @@
-#include <MemoryWrapper.hpp>
-#include <Util.hpp>
-#include <Registro.hpp>
-#include <DataBlock.hpp>
+#pragma once
 #include <algorithm>
 #include <cmath>
 
-namespace OrganizacaoHash
+#include <Campo.hpp>
+#include <DataBlock.hpp>
+#include <MemoryWrapper.hpp>
+#include <Heap.hpp>
+#include <Query.hpp>
+#include <Registro.hpp>
+#include <Schema.hpp>
+#include <Util.hpp>
+
+namespace Hash
 {
     template <typename T>
     inline size_t hashingFunc(size_t tablewidth, T value) {
@@ -21,6 +27,8 @@ namespace OrganizacaoHash
         }
         return result;
     };
+
+    size_t calculateHash(Campo campo, std::string chave, size_t tamanho);
 
     bool INSERT(MemoryWrapper<DataBlock> &mem, std::vector<Registro> registros);
 

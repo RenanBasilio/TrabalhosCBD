@@ -3,7 +3,7 @@
 #include <cstring>
 #include <MemoryWrapper.hpp>
 #include <DataBlock.hpp>
-#include <HEAD.hpp>
+#include <Schema.hpp>
 
 void parseStream(std::ifstream& ifs, int vhd, int blockoffset) {
     std::string str;
@@ -13,7 +13,7 @@ void parseStream(std::ifstream& ifs, int vhd, int blockoffset) {
     MemoryWrapper<DataBlock> mem(vhd);
     mem.loadBlock(blocksprocessed);
 
-    HEAD<Registro> schema = HEAD<Registro>();
+    Schema<Registro> schema = Schema<Registro>();
     schema.primeiro_bloco = blockoffset;
 
     while(getline(ifs, str)) {

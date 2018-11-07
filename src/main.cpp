@@ -4,10 +4,10 @@
 #include <cmath>
 #include <exception>
 
-#include <HEAD.hpp>
-#include <OrganizacaoHash.hpp>
-#include <OrganizacaoOrdenada.hpp>
-#include <OrganizacaoHeap.hpp>
+#include <Schema.hpp>
+#include <Hash.hpp>
+#include <Ordered.hpp>
+#include <Heap.hpp>
 
 
 int main(int argc, char const *argv[])
@@ -37,13 +37,13 @@ int main(int argc, char const *argv[])
     std::cout << "Executando testes..." << std::endl; 
     std::cout << "Formato: [Nome do Teste: número de acessos a bloco]" << std::endl;
     std::cout << "Armazenamento heap... " << std::endl; 
-    OrganizacaoHeap::runTests();
+    Heap::runTests();
     std::cout << "Done" << std::endl; 
     std::cout << "Armazenamento ordenado..." << std::endl;
-    //OrganizacaoOrdenada::runTests();
+    //Ordered::runTests();
     std::cout << "Done" << std::endl;
     std::cout << "Armazenamento em hash..." << std::endl;
-    OrganizacaoHash::runTests();
+    Hash::runTests();
     std::cout << "Done" << std::endl;
 
 

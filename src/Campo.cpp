@@ -4,8 +4,8 @@
 #include <exception>
 #include <stdexcept>
 
-bool comparaCampo( Campo campo, void* reg, std::string valor, const std::string &opr) {
-    void* cmp_ptr = nullptr;
+bool comparaCampo( Campo campo, const void* reg, std::string valor, const std::string &opr) {
+    const void* cmp_ptr = nullptr;
 
     enum OP { IGUAL, DIFF, MENOR, MAIOR, MEIG, MAIG };
 
@@ -20,71 +20,71 @@ bool comparaCampo( Campo campo, void* reg, std::string valor, const std::string 
 
     switch (campo.tipo) {
         case INT:
-            cmp_ptr = reinterpret_cast<char*>(reg) + campo.pos_relativa;
+            cmp_ptr = static_cast<const char*>(reg) + campo.pos_relativa;
             switch (operacao) {
                 case IGUAL:
-                    if (*reinterpret_cast<int*>(cmp_ptr) == std::stoi(valor)) return true;
+                    if (*reinterpret_cast<const int*>(cmp_ptr) == std::stoi(valor)) return true;
                     break;
                 case DIFF:
-                    if (*reinterpret_cast<int*>(cmp_ptr) == std::stoi(valor)) return false;
+                    if (*reinterpret_cast<const int*>(cmp_ptr) == std::stoi(valor)) return false;
                     break;
                 case MENOR:
-                    if (*reinterpret_cast<int*>(cmp_ptr) < std::stoi(valor)) return true;
+                    if (*reinterpret_cast<const int*>(cmp_ptr) < std::stoi(valor)) return true;
                     break;
                 case MAIOR:
-                    if (*reinterpret_cast<int*>(cmp_ptr) > std::stoi(valor)) return true;
+                    if (*reinterpret_cast<const int*>(cmp_ptr) > std::stoi(valor)) return true;
                     break;
                 case MEIG:
-                    if (*reinterpret_cast<int*>(cmp_ptr) <= std::stoi(valor)) return true;
+                    if (*reinterpret_cast<const int*>(cmp_ptr) <= std::stoi(valor)) return true;
                     break;
                 case MAIG:
-                    if (*reinterpret_cast<int*>(cmp_ptr) >= std::stoi(valor)) return true;
+                    if (*reinterpret_cast<const int*>(cmp_ptr) >= std::stoi(valor)) return true;
                     break;
             }
             break;
         case BIGINT:
-            cmp_ptr = reinterpret_cast<char*>(reg) + campo.pos_relativa;
+            cmp_ptr = static_cast<const char*>(reg) + campo.pos_relativa;
             switch (operacao) {
                 case IGUAL:
-                    if (*reinterpret_cast<size_t*>(cmp_ptr) == std::atoll(valor.c_str())) return true;
+                    if (*reinterpret_cast<const size_t*>(cmp_ptr) == std::atoll(valor.c_str())) return true;
                     break;
                 case DIFF:
-                    if (*reinterpret_cast<size_t*>(cmp_ptr) == std::atoll(valor.c_str())) return false;
+                    if (*reinterpret_cast<const size_t*>(cmp_ptr) == std::atoll(valor.c_str())) return false;
                     break;
                 case MENOR:
-                    if (*reinterpret_cast<size_t*>(cmp_ptr) < std::atoll(valor.c_str())) return true;
+                    if (*reinterpret_cast<const size_t*>(cmp_ptr) < std::atoll(valor.c_str())) return true;
                     break;
                 case MAIOR:
-                    if (*reinterpret_cast<size_t*>(cmp_ptr) > std::atoll(valor.c_str())) return true;
+                    if (*reinterpret_cast<const size_t*>(cmp_ptr) > std::atoll(valor.c_str())) return true;
                     break;
                 case MEIG:
-                    if (*reinterpret_cast<size_t*>(cmp_ptr) <= std::atoll(valor.c_str())) return true;
+                    if (*reinterpret_cast<const size_t*>(cmp_ptr) <= std::atoll(valor.c_str())) return true;
                     break;
                 case MAIG:
-                    if (*reinterpret_cast<size_t*>(cmp_ptr) >= std::atoll(valor.c_str())) return true;
+                    if (*reinterpret_cast<const size_t*>(cmp_ptr) >= std::atoll(valor.c_str())) return true;
                     break;
             }
             break;
         case CHAR:
-            cmp_ptr = reinterpret_cast<char*>(reg) + campo.pos_relativa;
+            cmp_ptr = static_cast<const char*>(reg) + campo.pos_relativa;
             switch (operacao) {
                 case IGUAL:
-                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) == 0) return true;
+                    if ( strncmp(reinterpret_cast<const char*>(cmp_ptr), valor.c_str(), campo.tamanho) == 0) return true;
                     break;
                 case DIFF:
-                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) == 0) return false;
+                    if ( strncmp(reinterpret_cast<const char*>(cmp_ptr), valor.c_str(), campo.tamanho) == 0) return false;
                     break;
                 case MENOR:
-                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) < 0) return true;
+                    if ( strncmp(reinterpret_cast<const char*>(cmp_ptr), valor.c_str(), campo.tamanho) < 0) return true;
                     break;
                 case MAIOR:
-                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) > 0) return true;
+                    if ( strncmp(reinterpret_cast<const char*>(cmp_ptr), valor.c_str(), campo.tamanho) > 0) return true;
                     break;
                 case MEIG:
-                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) <= 0) return true;
+                    if ( strncmp(reinterpret_cast<const char*>(cmp_ptr), valor.c_str(), campo.tamanho) <= 0) return true;
                     break;
                 case MAIG:
-                    if ( strncmp(reinterpret_cast<char*>(cmp_ptr), valor.c_str(), campo.tamanho) >= 0) return true;
+                    if ( strncmp(reinterpret_cast<const char*>(cmp_ptr), valor.c_str(), campo.tamanho) >= 0) return true;
                     break;
             }
             break;
@@ -106,13 +106,13 @@ bool comparaCampo( Campo campo, void* reg, std::string valor, const std::string 
         }
         */
         case BOOL:
-            cmp_ptr = reinterpret_cast<char*>(reg) + campo.pos_relativa;
+            cmp_ptr = static_cast<const char*>(reg) + campo.pos_relativa;
             switch (operacao) {
                 case IGUAL:
-                    if (*reinterpret_cast<bool*>(cmp_ptr) == SNtoBool(valor)) return true;
+                    if (*reinterpret_cast<const bool*>(cmp_ptr) == SNtoBool(valor)) return true;
                     break;
                 case DIFF:
-                    if (*reinterpret_cast<bool*>(cmp_ptr) == SNtoBool(valor)) return false;
+                    if (*reinterpret_cast<const bool*>(cmp_ptr) == SNtoBool(valor)) return false;
                     break;
                 default:
                     throw std::invalid_argument("Operacao invalida para campo de tipo BOOL ('"+opr+")");
@@ -124,9 +124,9 @@ bool comparaCampo( Campo campo, void* reg, std::string valor, const std::string 
     return false;
 }
 
-std::string getValorCampo(Campo campo, void* reg) {
+std::string getValorCampo(Campo campo, const void* reg) {
     std::string valor = "";
-    void* val_ptr = reinterpret_cast<char*>(reg) + campo.pos_relativa;
+    const void* val_ptr = reinterpret_cast<const char*>(reg) + campo.pos_relativa;
     
     switch (campo.tipo) {
         case INT:

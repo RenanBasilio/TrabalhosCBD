@@ -28,31 +28,23 @@ set(
     src/Data.cpp
     src/DataBlock.cpp
     src/Parser.cpp
+    src/Query.cpp
     src/Registro.cpp
     src/Util.cpp
     src/MemoryWrapper.cpp
-    src/OrganizacaoHeap.cpp
-    src/OrganizacaoOrdenada.cpp
-    src/OrganizacaoHash.cpp
     src/Campo.cpp
-)
-
-set(
-    HEADER_FILES 
-    include/main.hpp
-    include/Data.hpp
-    include/DataBlock.hpp
-    include/Parser.hpp
-    include/Registro.hpp
-    include/Util.hpp
-    include/HEAD.hpp
-    include/Timestamp.hpp
-    include/MemoryWrapper.hpp
-    include/Campo.hpp
-    include/OrganizacaoHeap.cpp
-    include/OrganizacaoOrdenada.cpp
-    include/OrganizacaoHash.cpp
-    include/Query.hpp
+    src/Hash/Insert.cpp
+    src/Hash/Select.cpp
+    src/Hash/Delete.cpp
+    src/Hash/Test.cpp
+    src/Heap/Insert.cpp
+    src/Heap/Select.cpp
+    src/Heap/Delete.cpp
+    src/Heap/Test.cpp
+    src/Ordered/Insert.cpp
+    src/Ordered/Select.cpp
+    src/Ordered/Delete.cpp
+    src/Ordered/Test.cpp
 )
 
 # Set the name of the built executable

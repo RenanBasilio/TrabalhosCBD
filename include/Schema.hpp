@@ -8,7 +8,7 @@
 enum Organizacao { HEAP, ORDERED, HASH };    
 
 template <typename T>
-class HEAD
+class Schema
 {
 private:
     // Vetor de tamanhos e localizações relativas dos campos e do registro (usar função initRegistro abaixo)
@@ -23,7 +23,7 @@ public:
     Campo campos[T::nCampos()];
     Organizacao org;
 
-    HEAD() {
+    Schema() {
         std::vector<Campo> cps = T::initHEAD();
         memcpy(campos, &cps[0], T::nCampos()*sizeof(Campo));
         nCampos = cps.size();

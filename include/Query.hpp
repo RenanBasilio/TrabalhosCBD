@@ -1,6 +1,9 @@
+#pragma once
+#include <stdexcept>
+
 #include <Campo.hpp>
 #include <Util.hpp>
-#include <HEAD.hpp>
+#include <Schema.hpp>
 
 enum TargetType { VALUE, SET, RANGE };
 
@@ -11,7 +14,7 @@ struct Target {
 };
 
 template <typename T>
-std::vector<Target> parseQuery(HEAD<T> schema, std::vector<std::string> params) {
+std::vector<Target> parseQuery(Schema<T> schema, std::vector<std::string> params) {
 
     std::vector<Target> targets = std::vector<Target>();
 
@@ -53,3 +56,13 @@ std::vector<Target> parseQuery(HEAD<T> schema, std::vector<std::string> params) 
 
     return targets;
 };
+
+bool matchQuery ( const Target &query, const void* registro );
+
+/*
+bool INSERT(MemoryWrapper<DataBlock> &mem, std::vector<Registro> registros);
+
+std::vector<Registro> SELECT(MemoryWrapper<DataBlock> &mem, std::vector<std::string> params);
+
+bool DELETE(MemoryWrapper<DataBlock> &mem, std::vector<std::string> params);
+*/
