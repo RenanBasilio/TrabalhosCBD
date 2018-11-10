@@ -4,6 +4,8 @@
 #include <Registro.hpp>
 #include <Util.hpp>
 
+
+//template <typename T>
 class DataBlock {
 public:
     std::bitset<Registro::nPorBloco()> registrosEscritos;

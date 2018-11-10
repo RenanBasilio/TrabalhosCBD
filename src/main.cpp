@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
     ifs.open("consulta_cand_2018_BRASIL.csv", std::ifstream::in);
     std::string str;
     std::getline(ifs, str);
-    parseStream(ifs, vhd, 1);
+    parseStream<Registro>(ifs, vhd, 1);
     std::cout << "Done" << std::endl;
 
     std::cout << "Executando testes..." << std::endl; 
