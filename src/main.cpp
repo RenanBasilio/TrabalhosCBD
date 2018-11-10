@@ -8,7 +8,7 @@
 #include <Hash.hpp>
 #include <Ordered.hpp>
 #include <Heap.hpp>
-
+#include <RegistroPartido.hpp>
 
 int main(int argc, char const *argv[])
 {
@@ -26,13 +26,27 @@ int main(int argc, char const *argv[])
     }
     std::cout << "Success" << std::endl;
 
+    //inicializando disco com a tabela de partidos
+    remove("partydisk.vhd");
+    int partyvhd = vhdf::openDisk("partydisk.vhd", sizeof(RegistroPartido)*40000, true);
+    if (partyvhd == -1) {
+        std::cout << "Error opening virtual hard disk." << std::endl;
+        return -1;
+    }
+    std::cout << "Success" << std::endl;
+
     std::cout << "Parsing input data from file consulta_cand_2018_BRASIL.csv...";
     std::ifstream ifs;
     ifs.open("consulta_cand_2018_BRASIL.csv", std::ifstream::in);
     std::string str;
     std::getline(ifs, str);
     parseStream<Registro>(ifs, vhd, 1);
+    ifs.clear();
+    ifs.seekg(0, std::ios::beg);
+    std::getline(ifs, str);
+    parseStream<RegistroPartido>(ifs, partyvhd, 1);     //tabela de partidos
     std::cout << "Done" << std::endl;
+
 
     std::cout << "Executando testes..." << std::endl; 
     std::cout << "Formato: [Nome do Teste: número de acessos a bloco]" << std::endl;
@@ -43,7 +57,7 @@ int main(int argc, char const *argv[])
     //Ordered::runTests();
     std::cout << "Done" << std::endl;
     std::cout << "Armazenamento em hash..." << std::endl;
-    Hash::runTests();
+    //Hash::runTests();
     std::cout << "Done" << std::endl;
 
 

@@ -16,7 +16,7 @@ void parseStream(std::ifstream& ifs, int vhd, int blockoffset) {
     size_t blocksprocessed = blockoffset;
     size_t regsprocessed = 0;
 
-    MemoryWrapper<DataBlock<Registro>> mem(vhd);
+    MemoryWrapper<DataBlock<T>> mem(vhd);
     mem.loadBlock(blocksprocessed);
 
     Schema<T> schema = Schema<T>();
