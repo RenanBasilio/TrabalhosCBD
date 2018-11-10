@@ -13,10 +13,10 @@ namespace Ordered
 {
     void runTests();
 
-    bool INSERT(MemoryWrapper<DataBlock> mem, std::vector<Registro> registros);
+    bool INSERT(MemoryWrapper<DataBlock<Registro>> mem, std::vector<Registro> registros);
 
-    std::vector<Registro> SELECT(MemoryWrapper<DataBlock> mem, std::vector<std::string> params);
+    std::vector<Registro> SELECT(MemoryWrapper<DataBlock<Registro>> mem, std::vector<std::string> params);
 
-    bool DELETE(MemoryWrapper<DataBlock> mem, std::vector<std::string> params);
+    bool DELETE(MemoryWrapper<DataBlock<Registro>> mem, std::vector<std::string> params);
 
 }

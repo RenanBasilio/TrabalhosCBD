@@ -10,18 +10,18 @@
 namespace Heap
 {
 
-    MemoryWrapper<DataBlock> initialize() {
+    MemoryWrapper<DataBlock<Registro>> initialize() {
         //mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDHeap.vhd", sizeof(Registro)*40000, true));
         int vhd = vhdf::openDisk("testdisk.vhd");
-        return MemoryWrapper<DataBlock>(vhd);
+        return MemoryWrapper<DataBlock<Registro>>(vhd);
     }
 
-    void cleanup(MemoryWrapper<DataBlock> &mem) {
+    void cleanup(MemoryWrapper<DataBlock<Registro>> &mem) {
         vhdf::closeDisk(mem.getDiskId());
     }
 
     void runTests() {
-        MemoryWrapper<DataBlock> mem = initialize();
+        MemoryWrapper<DataBlock<Registro>> mem = initialize();
         try {
 
             

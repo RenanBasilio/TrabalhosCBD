@@ -1,6 +1,6 @@
 #include <Hash.hpp>
 
-bool Hash::INSERT(MemoryWrapper<DataBlock> &mem, std::vector<Registro> registros) {
+bool Hash::INSERT(MemoryWrapper<DataBlock<Registro>> &mem, std::vector<Registro> registros) {
 
     Schema<Registro> schema;
     vhdf::readBlock(mem.getDiskId(), 0, &schema);

@@ -3,7 +3,7 @@
 // Um select de comparacao simples pode ser feito usando params do tipo {"CAMPO=valor"}
 // Um select de comparacao em uma faixa pode ser feito usando params do tipo {"CAMPO=[min:max]"}
 // Um select de comparacao em um conjunto de valores pode ser feito usando params do tipo {"CAMPO={valor1,valor2}"}
-bool Ordered::DELETE(MemoryWrapper<DataBlock> mem, std::vector<std::string> params) {
+bool Ordered::DELETE(MemoryWrapper<DataBlock<Registro>> mem, std::vector<std::string> params) {
     Schema<Registro> schema;
     vhdf::readBlock(mem.getDiskId(), 0, &schema);
     std::vector<Registro> ret_regs = std::vector<Registro>();

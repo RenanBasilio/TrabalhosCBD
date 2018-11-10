@@ -1,6 +1,6 @@
 #include <Ordered.hpp>
 
-std::vector<Registro> Ordered::SELECT(MemoryWrapper<DataBlock> mem, std::vector<std::string> params) {
+std::vector<Registro> Ordered::SELECT(MemoryWrapper<DataBlock<Registro>> mem, std::vector<std::string> params) {
 
     Schema<Registro> schema;
     vhdf::readBlock(mem.getDiskId(), 0, &schema);

@@ -10,9 +10,9 @@
 
 namespace Hash
 {
-    MemoryWrapper<DataBlock> initialize() {
+    MemoryWrapper<DataBlock<Registro>> initialize() {
         remove("VHDHash.vhd");
-        MemoryWrapper<DataBlock> mem = MemoryWrapper<DataBlock>(vhdf::openDisk("VHDHash.vhd", sizeof(Registro)*40000, true));
+        MemoryWrapper<DataBlock<Registro>> mem = MemoryWrapper<DataBlock<Registro>>(vhdf::openDisk("VHDHash.vhd", sizeof(Registro)*40000, true));
         Schema<Registro> schema = Schema<Registro>();
         schema.org = HASH;
         schema.primeiro_bloco = 1;
@@ -31,7 +31,7 @@ namespace Hash
         return mem;
     }
 
-    void cleanup(MemoryWrapper<DataBlock> mem) {
+    void cleanup(MemoryWrapper<DataBlock<Registro>> mem) {
         vhdf::closeDisk(mem.getDiskId());
     }
 
@@ -50,10 +50,10 @@ namespace Hash
 
     
     void runTests() {
-        MemoryWrapper<DataBlock> mem = initialize();
+        MemoryWrapper<DataBlock<Registro>> mem = initialize();
 
         std::vector<Registro> inserts = std::vector<Registro>();
-        MemoryWrapper<DataBlock> vhd(vhdf::openDisk("testdisk.vhd"));
+        MemoryWrapper<DataBlock<Registro>> vhd(vhdf::openDisk("testdisk.vhd"));
         std::vector<Registro> vect;
  
         // Teste com um único insert
