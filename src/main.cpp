@@ -8,6 +8,7 @@
 #include <Hash.hpp>
 #include <Ordered.hpp>
 #include <Heap.hpp>
+#include <Equijoin.hpp>
 #include <RegistroPartido.hpp>
 
 int main(int argc, char const *argv[])
@@ -51,7 +52,7 @@ int main(int argc, char const *argv[])
     std::cout << "Executando testes..." << std::endl; 
     std::cout << "Formato: [Nome do Teste: número de acessos a bloco]" << std::endl;
     std::cout << "Armazenamento heap... " << std::endl; 
-    Heap::runTests();
+    //Heap::runTests();
     std::cout << "Done" << std::endl; 
     std::cout << "Armazenamento ordenado..." << std::endl;
     //Ordered::runTests();
@@ -60,6 +61,9 @@ int main(int argc, char const *argv[])
     //Hash::runTests();
     std::cout << "Done" << std::endl;
 
+    std::cout << "Testes de Join" << std::endl;
+    Join::runTests();
+    std::cout << "Done" << std::endl;
 
     ifs.close();
     vhdf::closeDisk(vhd);

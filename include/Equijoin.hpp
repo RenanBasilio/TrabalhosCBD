@@ -1,0 +1,22 @@
+//
+// Created by Tuniks on 11/10/2018.
+//
+
+#pragma once
+#include <utility>
+#include <iostream>
+
+#include <Campo.hpp>
+#include <DataBlock.hpp>
+#include <MemoryWrapper.hpp>
+#include <Registro.hpp>
+#include <Schema.hpp>
+#include <Util.hpp>
+#include <Query.hpp>
+#include <RegistroPartido.hpp>
+
+namespace Join {
+    void runTests();
+
+    std::vector<std::pair<Registro, RegistroPartido>> NESTEDJOIN(MemoryWrapper<DataBlock<Registro>> &mem1, MemoryWrapper<DataBlock<RegistroPartido>> &mem2, std::vector<std::string> params);
+}
