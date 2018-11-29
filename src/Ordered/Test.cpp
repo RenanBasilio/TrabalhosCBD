@@ -16,8 +16,8 @@ namespace Ordered
         schema.org = HEAP;
         schema.primeiro_bloco = 1;
         schema.ultimo_bloco = 1;
-        schema.chave = 9;   // SQ_CANDIDATO
-        //schema.chave = 11; // NM_CANDIDATO
+        //schema.chave = 9;   // SQ_CANDIDATO
+        schema.chave = 11; // NM_CANDIDATO
         mem.loadBlock(1);
         mem->initialize();
         mem.commitBlock();
@@ -38,22 +38,22 @@ namespace Ordered
         std::vector<Registro> vect;
 
         // Teste com 1000 inserts
-        inserts.clear();
+/*         inserts.clear();
         for (int i = 0; i < 2000; i++) {
             vhd.loadBlock(1+i);
             for (int j = 0; j < 10; j++) {
                 inserts.push_back(vhd->getRegistro(j));
             }
         }
-        INSERT(mem, inserts);
+        INSERT(mem, inserts); */
 
 
         //INSERT UNICO TEST
-        mem.blockAccessCount = 0;
+/*         mem.blockAccessCount = 0;
         vhd.loadBlock(1);
         inserts.push_back(vhd->getRegistro(1));
         INSERT(mem, inserts);
-        std::cout << "INSERT 1 registro: " << mem.blockAccessCount << std::endl;
+        std::cout << "INSERT 1 registro: " << mem.blockAccessCount << std::endl; */
 
         // Teste com 10 inserts
         mem.blockAccessCount = 0;
@@ -65,7 +65,9 @@ namespace Ordered
         INSERT(mem, inserts);
         std::cout << "INSERT 10 Registros: " << mem.blockAccessCount << std::endl;
 
-           //SELECT UM VALOR TEST (SQ_CANDIDATO)
+
+
+        //SELECT UM VALOR TEST (SQ_CANDIDATO)
         mem.blockAccessCount = 0;
         vect = SELECT(mem, {"SQ_CANDIDATO=280000605589"});
         //std::cout << mem.blockAccessCount << std::endl;

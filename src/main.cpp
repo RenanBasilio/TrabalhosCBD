@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
     //Heap::runTests();
     std::cout << "Done" << std::endl; 
     std::cout << "Armazenamento ordenado..." << std::endl;
-    //Ordered::runTests();
+    Ordered::runTests();
     std::cout << "Done" << std::endl;
     std::cout << "Armazenamento em hash..." << std::endl;
     //Hash::runTests();

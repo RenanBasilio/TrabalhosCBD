@@ -1,7 +1,3 @@
-//
-// Created by Tuniks on 11/10/2018.
-//
-
 #include "Equijoin.hpp"
 
 namespace Join {
@@ -17,9 +13,44 @@ namespace Join {
         return MemoryWrapper<DataBlock<RegistroPartido>>(vhd);
     }
 
+    MemoryWrapper<DataBlock<Registro>> initialize_ordered(int chave, int num_registros) {
+        remove("VHDOrdenado_equijoin.vhd");
+        int vhd_ordenado = vhdf::openDisk("VHDOrdenado_equijoin.vhd", sizeof(Registro)*40000, true);
+        MemoryWrapper<DataBlock<Registro>> mem = MemoryWrapper<DataBlock<Registro>>(vhd_ordenado);
+        Schema<Registro> schema = Schema<Registro>();
+        schema.org = HEAP;
+        schema.primeiro_bloco = 1;
+        schema.ultimo_bloco = 1;
+        schema.chave = chave;   /// ordena por esta chave
+        mem.loadBlock(1);
+        mem->initialize();
+        mem.commitBlock();
+        vhdf::writeBlock(mem.getDiskId(), 0, &schema);
+
+
+        std::vector<Registro> inserts = std::vector<Registro>();
+        MemoryWrapper<DataBlock<Registro>> vhd(vhdf::openDisk("testdisk.vhd"));
+
+        // Inserir registros de forma ordenada
+        inserts.clear();
+        for (int i = 0; i < num_registros/10; i++) {
+            vhd.loadBlock(1+i);
+            for (int j = 0; j < 10; j++) {
+                inserts.push_back(vhd->getRegistro(j));
+            }
+        }
+        Ordered::INSERT(mem, inserts);
+
+        return mem;
+    }
+
+
+
     void runTests() {
         MemoryWrapper<DataBlock<Registro>> mem1 = initialize1();
         MemoryWrapper<DataBlock<RegistroPartido>> mem2 = initialize2();
+        MemoryWrapper<DataBlock<Registro>> mem_ordered = initialize_ordered(11, 10);
+
 
         try {
             std::vector<std::pair<Registro, RegistroPartido>> vect;
@@ -32,6 +63,7 @@ namespace Join {
         }
         vhdf::closeDisk(mem1.getDiskId());
         vhdf::closeDisk(mem2.getDiskId());
+        vhdf::closeDisk(mem_ordered.getDiskId());
     }
 
     std::vector<std::pair<Registro, RegistroPartido>>

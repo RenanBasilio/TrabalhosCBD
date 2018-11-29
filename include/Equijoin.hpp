@@ -14,9 +14,11 @@
 #include <Util.hpp>
 #include <Query.hpp>
 #include <RegistroPartido.hpp>
+#include <Ordered.hpp>
 
 namespace Join {
     void runTests();
 
     std::vector<std::pair<Registro, RegistroPartido>> NESTEDJOIN(MemoryWrapper<DataBlock<Registro>> &mem1, MemoryWrapper<DataBlock<RegistroPartido>> &mem2, std::vector<std::string> params);
+
 }

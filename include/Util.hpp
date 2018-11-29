@@ -12,3 +12,4 @@ constexpr int32_t constexpr_ceil(float num)
         ? static_cast<int32_t>(num)
         : static_cast<int32_t>(num) + ((num > 0) ? 1 : 0);
 }
+

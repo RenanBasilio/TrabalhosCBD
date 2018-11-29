@@ -99,7 +99,8 @@ bool Ordered::INSERT(MemoryWrapper<DataBlock<Registro>> mem, std::vector<Registr
                 bloco++;
             }
         }
-        else{ mem.commitBlock(); count++;
+        else{ 
+            mem.commitBlock(); count++;
         }
     }
 
