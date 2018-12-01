@@ -10,6 +10,7 @@
 #include <Heap.hpp>
 #include <Equijoin.hpp>
 #include <RegistroPartido.hpp>
+#include <Index.hpp>
 
 int main(int argc, char const *argv[])
 {
@@ -48,6 +49,9 @@ int main(int argc, char const *argv[])
     parseStream<RegistroPartido>(ifs, partyvhd, 1);     //tabela de partidos
     std::cout << "Done" << std::endl;
 
+    MemoryWrapper<DataBlock<Registro>> mem = MemoryWrapper<DataBlock<Registro>>(vhd);
+    Index index = createIndex("testdisk.vhd", mem, "NM_CANDIDATO", ORDERED);
+    std::vector<size_t> blocks = index.findBlocks("ABEL COSTA");
 
     std::cout << "Executando testes..." << std::endl; 
     std::cout << "Formato: [Nome do Teste: número de acessos a bloco]" << std::endl;

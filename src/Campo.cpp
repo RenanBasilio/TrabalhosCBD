@@ -135,8 +135,10 @@ std::string getValorCampo(Campo campo, const void* reg) {
         case BIGINT:
             valor = std::to_string(*(size_t*)val_ptr);
             break;
-        case CHAR:
-            valor = std::string((char*)val_ptr, campo.tamanho);
+        case CHAR: {
+            int len = strnlen((char*)val_ptr, campo.tamanho);
+            valor = std::string((char*)val_ptr, len);
+            }
             break;
         case BOOL:
             *(bool*)val_ptr == true? valor = "S" : valor = "N";

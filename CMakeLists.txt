@@ -45,7 +45,7 @@ set(
     src/Ordered/Select.cpp
     src/Ordered/Delete.cpp
     src/Ordered/Test.cpp
-        src/RegistroPartido.cpp src/Equijoin.cpp include/Equijoin.hpp)
+        src/RegistroPartido.cpp src/Equijoin.cpp)
 
 # Set the name of the built executable
 set(EXE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}")

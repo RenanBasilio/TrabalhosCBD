@@ -54,6 +54,8 @@
         "deque": "cpp",
         "unordered_map": "cpp",
         "functional": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "list": "cpp",
+        "xhash": "cpp"
     }
 }

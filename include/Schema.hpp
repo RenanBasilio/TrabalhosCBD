@@ -5,7 +5,7 @@
 #include <Timestamp.hpp>
 #include <DataBlock.hpp>
 
-enum Organizacao { HEAP, ORDERED, HASH };    
+enum Organizacao { HEAP, ORDERED, HASH, BTREE };    
 
 template <typename T>
 class Schema

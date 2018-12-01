@@ -13,11 +13,12 @@ namespace Join {
         return MemoryWrapper<DataBlock<RegistroPartido>>(vhd);
     }
 
-    MemoryWrapper<DataBlock<Registro>> initialize_ordered(int chave, int num_registros) {
+    template <typename T>
+    MemoryWrapper<DataBlock<T>> initialize_ordered(int chave, int num_registros) {
         remove("VHDOrdenado_equijoin.vhd");
-        int vhd_ordenado = vhdf::openDisk("VHDOrdenado_equijoin.vhd", sizeof(Registro)*40000, true);
-        MemoryWrapper<DataBlock<Registro>> mem = MemoryWrapper<DataBlock<Registro>>(vhd_ordenado);
-        Schema<Registro> schema = Schema<Registro>();
+        int vhd_ordenado = vhdf::openDisk("VHDOrdenado_equijoin.vhd", sizeof(T)*40000, true);
+        MemoryWrapper<DataBlock<T>> mem = MemoryWrapper<DataBlock<T>>(vhd_ordenado);
+        Schema<T> schema = Schema<T>();
         schema.org = HEAP;
         schema.primeiro_bloco = 1;
         schema.ultimo_bloco = 1;
@@ -28,18 +29,17 @@ namespace Join {
         vhdf::writeBlock(mem.getDiskId(), 0, &schema);
 
 
-        std::vector<Registro> inserts = std::vector<Registro>();
         MemoryWrapper<DataBlock<Registro>> vhd(vhdf::openDisk("testdisk.vhd"));
 
         // Inserir registros de forma ordenada
-        inserts.clear();
-        for (int i = 0; i < num_registros/10; i++) {
-            vhd.loadBlock(1+i);
+        for (int i = 1; i < std::ceil(num_registros/10); i++) {
+            std::vector<Registro> inserts = std::vector<Registro>();
+            vhd.loadBlock(i);
             for (int j = 0; j < 10; j++) {
                 inserts.push_back(vhd->getRegistro(j));
             }
+            Ordered::INSERT(mem, inserts);
         }
-        Ordered::INSERT(mem, inserts);
 
         return mem;
     }
@@ -49,7 +49,7 @@ namespace Join {
     void runTests() {
         MemoryWrapper<DataBlock<Registro>> mem1 = initialize1();
         MemoryWrapper<DataBlock<RegistroPartido>> mem2 = initialize2();
-        MemoryWrapper<DataBlock<Registro>> mem_ordered = initialize_ordered(11, 10);
+        MemoryWrapper<DataBlock<Registro>> mem_ordered = initialize_ordered<Registro>(11, 10);
 
 
         try {
