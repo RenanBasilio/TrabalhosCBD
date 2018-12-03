@@ -22,7 +22,7 @@ namespace Join {
         schema.org = HEAP;
         schema.primeiro_bloco = 1;
         schema.ultimo_bloco = 1;
-        schema.chave = chave;   /// ordena por esta chave
+        schema.chave = chave;   /// ordena por esta chave --> 9 = SQ_CANDIDATO; 11 = NM_CANDIDATO
         mem.loadBlock(1);
         mem->initialize();
         mem.commitBlock();
@@ -30,9 +30,9 @@ namespace Join {
 
         MemoryWrapper<DataBlock<T>> vhd(vhdf::openDisk(old_vhd.c_str()));
 
-        Schema<T> schema_new1;
+/*         Schema<T> schema_new1;
         vhdf::readBlock(mem.getDiskId(), 0, &schema_new1);
-        std::cout << "Ultimo bloco mem1: " << schema_new1.ultimo_bloco << std::endl;
+        std::cout << "Ultimo bloco mem1: " << schema_new1.ultimo_bloco << std::endl; */
 
         int registrosInseridos = 0;
         // Inserir registros de forma ordenada
@@ -49,11 +49,11 @@ namespace Join {
             Ordered::INSERT(mem, inserts);
         }
 
-        vhdf::closeDisk(mem.getDiskId());
-
+        //vhdf::closeDisk(mem.getDiskId());
+/* 
         Schema<T> schema_new2;
         vhdf::readBlock(mem.getDiskId(), 0, &schema_new2);
-        std::cout << "Ultimo bloco mem1: " << schema_new2.ultimo_bloco << std::endl;
+        std::cout << "Ultimo bloco mem2: " << schema_new2.ultimo_bloco << std::endl; */
         return mem;
     }
 
@@ -69,7 +69,7 @@ namespace Join {
             //std::vector<std::pair<Registro, RegistroPartido>> vect;
             //vect = Join::NESTEDJOIN(mem1, mem2, {"NR_PARTIDO=18"});
             //std::cout << vect[0].first.NM_CANDIDATO << " - " << vect.size() << std::endl;
-            Join::SORTMERGEJOIN(9,13);
+            Join::SORTMERGEJOIN(11,13);
         }
         catch (std::invalid_argument e) {
             std::cout << "Erro: " << e.what() << std::endl;
@@ -86,11 +86,20 @@ namespace Join {
         Schema<T> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
 
-        std::cout << "Ultimo bloco: " << schema.ultimo_bloco << std::endl;
+/*         std::cout << "Ultimo bloco: " << schema.ultimo_bloco << std::endl;
         std::cout << "Bloco atual: " << block << std::endl;
+ */
 
-
-        if(schema.ultimo_bloco != block) {
+        mem.loadBlock(block);
+        if(reg_pos < mem->registrosEscritos.count()-1) {
+            nextReg = mem->getRegistro(reg_pos+1);
+        } else if (reg_pos == mem->registrosEscritos.count()-1 && block != schema.ultimo_bloco) {
+            mem.loadBlock(block+1);
+            nextReg = mem->getRegistro(0);
+        } else {
+/*             std::cout << "Deu merda" << std::endl; */
+        }
+/*         if(schema.ultimo_bloco != block) {
             if (reg_pos == 9) {
                 mem.loadBlock(block+1);
                 nextReg = mem->getRegistro(0);
@@ -105,9 +114,7 @@ namespace Join {
             mem.loadBlock(block);
             if(reg_pos < mem->registrosEscritos.count()-1)
                 nextReg = mem->getRegistro(reg_pos+1);
-         /*    else
-                nextReg = NULL; */
-        }
+        } */
         return nextReg;
     }
 
@@ -133,15 +140,14 @@ namespace Join {
 
         //mem_ordered1.loadBlock(1);
         Registro reg_extra = nextRegistro(-1,1,mem_ordered1);
-        std::cout << "Registro extra: " << reg_extra.NM_CANDIDATO << std::endl;
-        std::cout << "Ceilt: " << std::ceil(float(num_registros)/10) << std::endl;
+        std::cout << "Primeiro registro: " << reg_extra.NM_CANDIDATO << std::endl;
         
 
-        for (int i=1; i<=std::ceil(float(num_registros)/10); i++) {
+        for (int i=1; i<=std::ceil(float(num_registros)/schema2.regs_por_bloco); i++) {
             // mem_ordered1.loadBlock(i+1);
-            for (int j=0; j<10; j++) {
-                reg1 = nextRegistro(j,i,mem_ordered1);
-                std::cout << "Registro " << j+1 << ": " << reg1.NM_CANDIDATO << std::endl;
+            for (int j=0; j<schema2.regs_por_bloco; j++) {
+                reg2 = nextRegistro(j,i,mem_ordered2);
+                std::cout << "Registro " << j+1 << ": " << reg2.NM_PARTIDO << std::endl;
             }
         }
 
