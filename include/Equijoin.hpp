@@ -5,6 +5,7 @@
 #pragma once
 #include <utility>
 #include <iostream>
+#include <cmath>
 
 #include <Campo.hpp>
 #include <DataBlock.hpp>
