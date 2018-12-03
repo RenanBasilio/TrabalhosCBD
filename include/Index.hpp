@@ -105,7 +105,7 @@ Index createIndex( std::string disk, MemoryWrapper<DataBlock<R>> mem, Campo c, O
     vhdf::readBlock(mem.getDiskId(), 0, &schema);
 
     std::vector<std::pair<std::string, size_t>> entries = std::vector<std::pair<std::string, size_t>>();
-    MemoryWrapper<DataBlock<R>> vhd(vhdf::openDisk(disk));
+    MemoryWrapper<DataBlock<R>> vhd(vhdf::openDisk(disk.c_str()));
 
     // Inserir registros de forma ordenada
     for (size_t i = schema.primeiro_bloco; i < schema.ultimo_bloco; i++) {

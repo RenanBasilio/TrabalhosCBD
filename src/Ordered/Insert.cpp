@@ -1,6 +1,6 @@
 #include <Ordered.hpp>
 
-bool Ordered::INSERT(MemoryWrapper<DataBlock<Registro>> mem, std::vector<Registro> registros) {
+/* bool Ordered::INSERT(MemoryWrapper<DataBlock<Registro>> mem, std::vector<Registro> registros) {
     int count = 0;
     Schema<Registro> schema;
     vhdf::readBlock(mem.getDiskId(), 0, &schema);
@@ -108,3 +108,4 @@ bool Ordered::INSERT(MemoryWrapper<DataBlock<Registro>> mem, std::vector<Registr
     std::cout << count << std::endl;
     return true;
 }
+ */

@@ -50,8 +50,8 @@ int main(int argc, char const *argv[])
     std::cout << "Done" << std::endl;
 
     MemoryWrapper<DataBlock<Registro>> mem = MemoryWrapper<DataBlock<Registro>>(vhd);
-    Index index = createIndex("testdisk.vhd", mem, "NM_CANDIDATO", ORDERED);
-    std::vector<size_t> blocks = index.findBlocks("ABEL COSTA");
+/*     Index index = createIndex("testdisk.vhd", mem, "NM_CANDIDATO", ORDERED);
+    std::vector<size_t> blocks = index.findBlocks("ABEL COSTA"); */
 
     std::cout << "Executando testes..." << std::endl; 
     std::cout << "Formato: [Nome do Teste: número de acessos a bloco]" << std::endl;
@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
     //Heap::runTests();
     std::cout << "Done" << std::endl; 
     std::cout << "Armazenamento ordenado..." << std::endl;
-    Ordered::runTests();
+    //Ordered::runTests();
     std::cout << "Done" << std::endl;
     std::cout << "Armazenamento em hash..." << std::endl;
     //Hash::runTests();
@@ -72,5 +72,6 @@ int main(int argc, char const *argv[])
     ifs.close();
     vhdf::closeDisk(vhd);
 
+    system("pause");
     return 0;
 }
