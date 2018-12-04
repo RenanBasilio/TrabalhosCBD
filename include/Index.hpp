@@ -18,9 +18,12 @@ class Index {
     void* _structure = nullptr;
     Organizacao _org;
 
+    Campo _campo;
+
 private:
     // Esse construtor nao pode ser chamado diretamente. Utilize a funcao createIndex
-    Index( Organizacao org, std::vector<std::pair<std::string, size_t>> vals ) {
+    Index( Campo campo, Organizacao org, std::vector<std::pair<std::string, size_t>> vals ) {
+        _campo = campo;
         _org = org;
         sort( vals );
     }
@@ -69,8 +72,43 @@ public:
                 return hashtable->at(key);
             }
             case BTREE:
-                break;
+                return blocks;
 
+            default:
+                throw std::runtime_error("Invalid index organization structure.");
+        }
+    }
+
+    size_t simulateDiskAccesses ( std::string key ) {
+
+        const size_t keysPerBlock =  std::floor( vhdf::BLOCK_SIZE / ( _campo.tamanho + sizeof(size_t) ) );
+
+        switch (_org) {
+            case ORDERED : {
+                std::vector<std::pair<std::string, size_t>> *vector = static_cast<std::vector<std::pair<std::string, size_t>>*>(_structure);
+                size_t blocks = std::ceil( vector->size / keysPerBlock );
+                size_t lower = 0;
+                size_t upper = std::floor( vector->size / keysPerBlock );
+                size_t middle;
+                size_t result = 0;
+                while (lower < upper) {
+                    middle = ( upper + lower + 1 )/2;
+                    result++;
+                    if ( vector->at(middle * keysPerBlock).first > key ) upper = middle - 1;
+                    else lower = middle;
+                }
+                result++;
+                return result;
+            }
+            case HASH: {
+                std::unordered_map<std::string, std::vector<size_t>> *hashtable = static_cast<std::unordered_map<std::string, std::vector<size_t>>*>(_structure);
+                size_t bucket = hashtable->bucket(key);
+                size_t bucket_size = hashtable->bucket_size(bucket);
+                return std::ceil( (double)bucket_size / keysPerBlock );
+            }
+            case BTREE: {
+                return 0;
+            }
             default:
                 throw std::runtime_error("Invalid index organization structure.");
         }
@@ -115,7 +153,7 @@ Index createIndex( std::string disk, MemoryWrapper<DataBlock<R>> mem, Campo c, O
         }
     }
 
-    Index index(org, entries);
+    Index index(c, org, entries);
 
     return index;
 }

@@ -57,6 +57,8 @@
         "sstream": "cpp",
         "list": "cpp",
         "xhash": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "iterator": "cpp",
+        "set": "cpp"
     }
 }
