@@ -86,9 +86,9 @@ public:
         switch (_org) {
             case ORDERED : {
                 std::vector<std::pair<std::string, size_t>> *vector = static_cast<std::vector<std::pair<std::string, size_t>>*>(_structure);
-                size_t blocks = std::ceil( vector->size / keysPerBlock );
+                size_t blocks = std::ceil( vector->size() / keysPerBlock );
                 size_t lower = 0;
-                size_t upper = std::floor( vector->size / keysPerBlock );
+                size_t upper = std::floor( vector->size() / keysPerBlock );
                 size_t middle;
                 size_t result = 0;
                 while (lower < upper) {
