@@ -211,6 +211,7 @@ namespace Join {
 
         std::vector<Target> targets1 = parseQuery(schema1, params);
         std::vector<Target> targets2 = parseQuery(schema2, params);
+        Target joinTarget;
 
         Registro reg1;
         RegistroPartido reg2;
@@ -223,27 +224,22 @@ namespace Join {
             for (int j = 0; j < mem1->registrosEscritos.size(); j++) {
                 reg1 = mem1->getRegistro(j);
 
-                int match = 0;
-                for (int k = 0; k < targets1.size(); k++) matchQuery(targets1[k], &reg1) ? match++ : match;
-                if (match == targets1.size()) {
-                    //inner loop
-                    found = false;
-                    for (size_t l = schema2.primeiro_bloco; l <= schema2.ultimo_bloco; l++) {
-                        mem2.loadBlock(l);
-                        for (int m = 0; m < mem2->registrosEscritos.size(); m++) {
-                            reg2 = mem2->getRegistro(m);
-                            //std::cout << "l00p" << std::endl;
-                            int match = 0;
-                            for (int n = 0; n < targets2.size(); n++) matchQuery(targets2[n], &reg2) ? match++ : match;
-                            if ((match == targets2.size()) && (!found)) {
-                                //std::cout << "oi" << std::endl;
-                                found = true;
-                                ret_regs.push_back(std::make_pair(reg1, reg2));
-                            }
+                joinTarget.campo = targets2[0].campo;   //has to be targets2 campo
+                joinTarget.valor = {getValorCampo(targets1[0].campo,&reg1)};
+                joinTarget.tipo = targets1[0].tipo;
+
+                //inner loop
+                found = false;
+                for (size_t l = schema2.primeiro_bloco; (l <= schema2.ultimo_bloco) && (!found); l++) {
+                    mem2.loadBlock(l);
+                    for (int m = 0; m < mem2->registrosEscritos.size(); m++) {
+                        reg2 = mem2->getRegistro(m);
+
+                        if((matchQuery(joinTarget, &reg2)) && (!found)){
+                            found = true;
+                            ret_regs.push_back(std::make_pair(reg1, reg2));
                         }
                     }
-                    //ret_regs.push_back(reg1);
-                    //std::cout << "Found match " << reg.NM_CANDIDATO << std::endl;
                 }
             }
         }
