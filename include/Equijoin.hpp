@@ -1,7 +1,6 @@
 //
 // Created by Tuniks on 11/10/2018.
 //
-
 #pragma once
 #include <utility>
 #include <iostream>
@@ -19,6 +18,7 @@
 
 namespace Join {
     void runTests();
+    void runTestsNested();
 
     std::vector<std::pair<Registro, RegistroPartido>> NESTEDJOIN(MemoryWrapper<DataBlock<Registro>> &mem1, MemoryWrapper<DataBlock<RegistroPartido>> &mem2, std::vector<std::string> params);
     std::vector<std::pair<Registro, RegistroPartido>> SORTMERGEJOIN(std::string join_attribute, int num_registros);
