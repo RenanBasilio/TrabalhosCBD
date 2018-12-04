@@ -20,6 +20,6 @@ namespace Join {
     void runTests();
 
     std::vector<std::pair<Registro, RegistroPartido>> NESTEDJOIN(MemoryWrapper<DataBlock<Registro>> &mem1, MemoryWrapper<DataBlock<RegistroPartido>> &mem2, std::vector<std::string> params);
-    std::vector<std::pair<Registro, RegistroPartido>> SORTMERGEJOIN(int join_attribute, int num_registros);
+    std::vector<std::pair<Registro, RegistroPartido>> SORTMERGEJOIN(std::string join_attribute, int num_registros);
 
 }

@@ -14,7 +14,7 @@ namespace Join {
     }
 
     template <typename T>
-    MemoryWrapper<DataBlock<T>> initialize_ordered(int chave, int num_registros, std::string old_vhd, std::string new_vhd) {
+    MemoryWrapper<DataBlock<T>> initialize_ordered(std::string campo_ordenacao, int num_registros, std::string old_vhd, std::string new_vhd) {
         remove(new_vhd.c_str());
         int vhd_ordenado = vhdf::openDisk(new_vhd.c_str(), sizeof(T)*40000, true);
         MemoryWrapper<DataBlock<T>> mem = MemoryWrapper<DataBlock<T>>(vhd_ordenado);
@@ -22,17 +22,25 @@ namespace Join {
         schema.org = HEAP;
         schema.primeiro_bloco = 1;
         schema.ultimo_bloco = 1;
+
+        int chave;
+        bool found = false;
+        for (int i = 0; i < schema.nCampos; i ++){
+            if ( schema.campos[i].nm_campo == campo_ordenacao ) {
+                chave = i;
+                found = true;
+            }
+        }
+        if (found = false) throw std::runtime_error("Campo não encontrado.");
+
         schema.chave = chave;   /// ordena por esta chave --> 9 = SQ_CANDIDATO; 11 = NM_CANDIDATO
+
         mem.loadBlock(1);
         mem->initialize();
         mem.commitBlock();
         vhdf::writeBlock(mem.getDiskId(), 0, &schema);
 
         MemoryWrapper<DataBlock<T>> vhd(vhdf::openDisk(old_vhd.c_str()));
-
-/*         Schema<T> schema_new1;
-        vhdf::readBlock(mem.getDiskId(), 0, &schema_new1);
-        std::cout << "Ultimo bloco mem1: " << schema_new1.ultimo_bloco << std::endl; */
 
         int registrosInseridos = 0;
         // Inserir registros de forma ordenada
@@ -41,19 +49,12 @@ namespace Join {
             vhd.loadBlock(i);
             for (int j = 0; j < 10; j++) {
                 if(registrosInseridos < num_registros) {
-                    //std::cout << "Inseridos: " << registrosInseridos << std::endl;
                     inserts.push_back(vhd->getRegistro(j));
                     registrosInseridos++;
                 }
             }
             Ordered::INSERT(mem, inserts);
         }
-
-        //vhdf::closeDisk(mem.getDiskId());
-/* 
-        Schema<T> schema_new2;
-        vhdf::readBlock(mem.getDiskId(), 0, &schema_new2);
-        std::cout << "Ultimo bloco mem2: " << schema_new2.ultimo_bloco << std::endl; */
         return mem;
     }
 
@@ -69,7 +70,11 @@ namespace Join {
             //std::vector<std::pair<Registro, RegistroPartido>> vect;
             //vect = Join::NESTEDJOIN(mem1, mem2, {"NR_PARTIDO=18"});
             //std::cout << vect[0].first.NM_CANDIDATO << " - " << vect.size() << std::endl;
-            Join::SORTMERGEJOIN(11,13);
+            std::vector<std::pair<Registro, RegistroPartido>> sortmergejoin_results = SORTMERGEJOIN("NR_PARTIDO",13);
+            std::cout << "SortMergeJoin: " << std::endl;
+            for(int i = 0; i < sortmergejoin_results.size(); i++) {
+                std::cout << sortmergejoin_results[i].first.NR_PARTIDO << ", " << sortmergejoin_results[i].second.NR_PARTIDO << std::endl;
+            }
         }
         catch (std::invalid_argument e) {
             std::cout << "Erro: " << e.what() << std::endl;
@@ -85,40 +90,19 @@ namespace Join {
         T nextReg;
         Schema<T> schema;
         vhdf::readBlock(mem.getDiskId(), 0, &schema);
-
-/*         std::cout << "Ultimo bloco: " << schema.ultimo_bloco << std::endl;
-        std::cout << "Bloco atual: " << block << std::endl;
- */
-
         mem.loadBlock(block);
-        if(reg_pos < mem->registrosEscritos.count()-1) {
+
+        if(reg_pos < mem->registrosEscritos.count()-1) 
             nextReg = mem->getRegistro(reg_pos+1);
-        } else if (reg_pos == mem->registrosEscritos.count()-1 && block != schema.ultimo_bloco) {
+        else if (reg_pos == mem->registrosEscritos.count()-1 && block != schema.ultimo_bloco) {
             mem.loadBlock(block+1);
             nextReg = mem->getRegistro(0);
-        } else {
-/*             std::cout << "Deu merda" << std::endl; */
-        }
-/*         if(schema.ultimo_bloco != block) {
-            if (reg_pos == 9) {
-                mem.loadBlock(block+1);
-                nextReg = mem->getRegistro(0);
-            }
-            else {
-                mem.loadBlock(block);
-                nextReg = mem->getRegistro(reg_pos+1);
-            }
-        }
-        else {
-            std::cout << "Ultimo bloco" << std::endl;
-            mem.loadBlock(block);
-            if(reg_pos < mem->registrosEscritos.count()-1)
-                nextReg = mem->getRegistro(reg_pos+1);
-        } */
+        } else 
+            nextReg.NR_PARTIDO = -1;
         return nextReg;
     }
 
-    std::vector<std::pair<Registro, RegistroPartido>> SORTMERGEJOIN(int join_attribute, int num_registros) {
+    std::vector<std::pair<Registro, RegistroPartido>> SORTMERGEJOIN(std::string join_attribute, int num_registros) {
         
         // Inicializar relações
         MemoryWrapper<DataBlock<Registro>> mem_ordered1 = initialize_ordered<Registro>(join_attribute, num_registros, "testdisk.vhd", "vhd_equijoin_registro.vhd");
@@ -131,41 +115,87 @@ namespace Join {
 
         std::vector<std::pair<Registro, RegistroPartido>> ret_regs = std::vector<std::pair<Registro, RegistroPartido>>();
 
-        // std::vector<Target> targets1 = parseQuery(schema1, params);
-        // std::vector<Target> targets2 = parseQuery(schema2, params);
-
         Registro reg1;
+        Registro reg1_extra;
         RegistroPartido reg2;
-        bool found = false;
-
-        //mem_ordered1.loadBlock(1);
-        Registro reg_extra = nextRegistro(-1,1,mem_ordered1);
-        std::cout << "Primeiro registro: " << reg_extra.NM_CANDIDATO << std::endl;
+        RegistroPartido reg2_extra;
         
+        std::cout << "----------------------------------------------------" << std::endl;
+        std::cout << "RELAÇÃO 1" << std::endl;
+        std::cout << "----------------------------------------------------" << std::endl;
 
-        for (int i=1; i<=std::ceil(float(num_registros)/schema2.regs_por_bloco); i++) {
-            // mem_ordered1.loadBlock(i+1);
-            for (int j=0; j<schema2.regs_por_bloco; j++) {
-                reg2 = nextRegistro(j,i,mem_ordered2);
-                std::cout << "Registro " << j+1 << ": " << reg2.NM_PARTIDO << std::endl;
+        for (int i=1; i<=(float(num_registros)/schema1.regs_por_bloco)+1; i++) {
+            mem_ordered1.loadBlock(i);
+            for (int j=0; j<schema1.regs_por_bloco; j++) {
+                reg1 = mem_ordered1->getRegistro(j);
+                if (reg1.NR_PARTIDO != 0)
+                    std::cout << "Registro " << j << ": " << reg1.NR_PARTIDO << std::endl;
             }
         }
 
+        std::cout << "----------------------------------------------------" << std::endl;
+        std::cout << "----------------------------------------------------" << std::endl;
+        std::cout << "RELAÇÃO 2" << std::endl;
+        std::cout << "----------------------------------------------------" << std::endl;
+
+
+        for (int i=1; i<=(float(num_registros)/schema2.regs_por_bloco)+1; i++) {
+            mem_ordered2.loadBlock(i);
+            for (int j=0; j<schema2.regs_por_bloco; j++) {
+                reg2 = mem_ordered2->getRegistro(j);
+                if (reg2.NR_PARTIDO != 0)
+                    std::cout << "Registro " << j << ": " << reg2.NR_PARTIDO << std::endl;
+            }
+        }
+        std::cout << "----------------------------------------------------" << std::endl;
+
+
         //Inicializar registros
-/*         mem_ordered1.loadBlock(1);
+        mem_ordered1.loadBlock(1);
         mem_ordered2.loadBlock(1);
         reg1 = mem_ordered1->getRegistro(0);
         reg2 = mem_ordered2->getRegistro(0);
-        int i = 0;
+        int reg1Count = 0;
+        int reg2Count = 0;
 
-        while(reg1) {
-            
-        }
+        std::cout << "Initializing SortMergeJoin..." << std::endl;
 
-        for (size_t i = schema1.primeiro_bloco; i <= schema1.ultimo_bloco; i++) {
-            mem_ordered1.loadBlock(i);
-        }
-        */
+        while(reg1.NR_PARTIDO != -1 && reg2.NR_PARTIDO !=-1) {
+            if(reg1.NR_PARTIDO > reg2.NR_PARTIDO) {
+                std::cout << "reg1 > reg2" << std::endl;
+                reg2 = nextRegistro(reg2Count%schema2.regs_por_bloco,(float(reg2Count)/schema2.regs_por_bloco)+1,mem_ordered2);
+                reg2Count++;
+            } else if (reg1.NR_PARTIDO < reg2.NR_PARTIDO) {
+                std::cout << "reg1 < reg2" << std::endl;
+                reg1 = nextRegistro(reg1Count%schema1.regs_por_bloco,(float(reg1Count)/schema1.regs_por_bloco)+1,mem_ordered1);
+                reg1Count++;
+            } else { //match
+                std::cout << "reg1 = reg2 (Match!)" << std::endl;
+                ret_regs.push_back(std::make_pair(reg1,reg2));
+                // Output further tuples that match with reg1
+                int reg2Count_extra = reg2Count;
+                reg2_extra = nextRegistro(reg2Count_extra%schema2.regs_por_bloco,(float(reg2Count_extra)/schema2.regs_por_bloco)+1,mem_ordered2);
+                while(reg2_extra.NR_PARTIDO != -1 && reg1.NR_PARTIDO == reg2_extra.NR_PARTIDO) {
+                    std::cout << "reg1 = reg2' (Match!)" << std::endl;
+                    ret_regs.push_back(std::make_pair(reg1,reg2_extra));
+                    reg2Count_extra++;
+                    reg2_extra = nextRegistro(reg2Count_extra%schema2.regs_por_bloco,(float(reg2Count_extra)/schema2.regs_por_bloco)+1,mem_ordered2);
+                }
+                // Output further tuples that match with reg2
+                int reg1Count_extra = reg1Count;
+                reg1_extra = nextRegistro(reg1Count_extra%schema1.regs_por_bloco,(float(reg1Count_extra)/schema1.regs_por_bloco)+1,mem_ordered1);
+                while(reg1_extra.NR_PARTIDO != -1 && reg2.NR_PARTIDO == reg1_extra.NR_PARTIDO) {
+                    std::cout << "reg1' = reg2 (Match!)" << std::endl;
+                    ret_regs.push_back(std::make_pair(reg1_extra,reg2));
+                    reg1Count_extra++;
+                    reg1_extra = nextRegistro(reg1Count_extra%schema1.regs_por_bloco,(float(reg1Count_extra)/schema1.regs_por_bloco)+1,mem_ordered1);
+                }
+                reg1 = nextRegistro(reg1Count%schema1.regs_por_bloco,(float(reg1Count)/schema1.regs_por_bloco)+1,mem_ordered1);
+                reg2 = nextRegistro(reg2Count%schema2.regs_por_bloco,(float(reg2Count)/schema2.regs_por_bloco)+1,mem_ordered2);
+                reg1Count++;
+                reg2Count++;
+            }
+        }     
         return ret_regs;
     }
 
