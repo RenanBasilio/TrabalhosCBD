@@ -11,10 +11,11 @@
 #include <DataBlock.hpp>
 
 template <typename T>
-void parseStream(std::ifstream& ifs, int vhd, int blockoffset) {
+void parseStream(std::ifstream& ifs, int vhd, int blockoffset, int numRegistros) {
     std::string str;
     size_t blocksprocessed = blockoffset;
     size_t regsprocessed = 0;
+    size_t totalregsprocessed = 0;
 
     MemoryWrapper<DataBlock<T>> mem(vhd);
     mem.loadBlock(blocksprocessed);
@@ -22,7 +23,7 @@ void parseStream(std::ifstream& ifs, int vhd, int blockoffset) {
     Schema<T> schema = Schema<T>();
     schema.primeiro_bloco = blockoffset;
 
-    while(getline(ifs, str)) {
+    while(getline(ifs, str) && totalregsprocessed < numRegistros) {
         // Se o numero de registros por bloco foi atingido, comitta no vhd
         if (regsprocessed == T::nPorBloco()) {
             mem.commitBlock();
@@ -33,6 +34,7 @@ void parseStream(std::ifstream& ifs, int vhd, int blockoffset) {
         T reg(str);
         mem->setRegistro(regsprocessed, reg);
         regsprocessed++;
+        totalregsprocessed++;
     }
     mem.commitBlock();
     blocksprocessed++;

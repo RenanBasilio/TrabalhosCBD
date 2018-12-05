@@ -46,7 +46,7 @@ set(
     src/Ordered/Delete.cpp
     src/Ordered/Test.cpp
     src/RegistroPartido.cpp
-        src/Join/EquijoinMerge.cpp
+        src/Join/EquijoinMergeHash.cpp
         src/Join/EquijoinNested.cpp)
 
 # Set the name of the built executable
