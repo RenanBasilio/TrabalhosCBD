@@ -354,54 +354,6 @@ namespace Join {
     }
 
 
-    // Implementa o algoritmo NestedJoin
-    std::vector<std::pair<Registro, RegistroPartido>>
-    NESTEDJOIN(MemoryWrapper<DataBlock<Registro>> &mem1, MemoryWrapper<DataBlock<RegistroPartido>> &mem2,
-                     std::vector<std::string> params) {
-        Schema<Registro> schema1;
-        vhdf::readBlock(mem1.getDiskId(), 0, &schema1);
-        Schema<RegistroPartido> schema2;
-        vhdf::readBlock(mem2.getDiskId(), 0, &schema2);
-
-        std::vector<std::pair<Registro, RegistroPartido>> ret_regs = std::vector<std::pair<Registro, RegistroPartido>>();
-
-        std::vector<Target> targets1 = parseQuery(schema1, params);
-        std::vector<Target> targets2 = parseQuery(schema2, params);
-        Target joinTarget;
-
-        Registro reg1;
-        RegistroPartido reg2;
-
-        bool found = false;
-
-        //std::cout << "Comparing against database members..." << std::endl;
-        for (size_t i = schema1.primeiro_bloco; i <= schema1.ultimo_bloco; i++) {
-            mem1.loadBlock(i);
-            for (int j = 0; j < mem1->registrosEscritos.size(); j++) {
-                reg1 = mem1->getRegistro(j);
-
-                joinTarget.campo = targets2[0].campo;   //has to be targets2 campo
-                joinTarget.valor = {getValorCampo(targets1[0].campo,&reg1)};
-                joinTarget.tipo = targets1[0].tipo;
-
-                //inner loop
-                found = false;
-                for (size_t l = schema2.primeiro_bloco; (l <= schema2.ultimo_bloco) && (!found); l++) {
-                    mem2.loadBlock(l);
-                    for (int m = 0; m < mem2->registrosEscritos.size(); m++) {
-                        reg2 = mem2->getRegistro(m);
-
-                        if((matchQuery(joinTarget, &reg2)) && (!found)){
-                            found = true;
-                            ret_regs.push_back(std::make_pair(reg1, reg2));
-                        }
-                    }
-                }
-            }
-        }
-        return ret_regs;
-    }
-
 
     void runTests() {
         MemoryWrapper<DataBlock<Registro>> mem1 = initialize_heap<Registro>(13, "testdisk.vhd", "vhd_equijoin_registro_heap.vhd");
@@ -417,9 +369,6 @@ namespace Join {
 
 
         try {
-            //std::vector<std::pair<Registro, RegistroPartido>> vect;
-            //vect = Join::NESTEDJOIN(mem1, mem2, {"NR_PARTIDO=18"});
-            //std::cout << vect[0].first.NM_CANDIDATO << " - " << vect.size() << std::endl;
             std::vector<std::pair<Registro, RegistroPartido>> sortmergejoin_results = SORTMERGEJOIN("NR_PARTIDO",13);
             std::cout << "SortMergeJoin results: " << std::endl;
             for(int i = 0; i < sortmergejoin_results.size(); i++) {
