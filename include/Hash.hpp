@@ -8,6 +8,7 @@
 #include <Heap.hpp>
 #include <Query.hpp>
 #include <Registro.hpp>
+#include <RegistroPartido.hpp>
 #include <Schema.hpp>
 #include <Util.hpp>
 
@@ -31,6 +32,7 @@ namespace Hash
     size_t calculateHash(Campo campo, std::string chave, size_t tamanho);
 
     bool INSERT(MemoryWrapper<DataBlock<Registro>> &mem, std::vector<Registro> registros);
+    bool INSERTPARTY(MemoryWrapper<DataBlock<RegistroPartido>> &mem, std::vector<RegistroPartido> registros);
 
     std::vector<Registro> SELECT(MemoryWrapper<DataBlock<Registro>> &mem, std::vector<std::string> params);
 

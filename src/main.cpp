@@ -45,8 +45,11 @@ int main(int argc, char const *argv[])
     parseStream<Registro>(ifs, vhd, 1);
     ifs.clear();
     ifs.seekg(0, std::ios::beg);
-    std::getline(ifs, str);
-    parseStream<RegistroPartido>(ifs, partyvhd, 1);     //tabela de partidos
+
+    std::ifstream ifs2;
+    ifs2.open("partidos.csv", std::ifstream::in);
+    std::getline(ifs2, str);
+    parseStream<RegistroPartido>(ifs2, partyvhd, 1);     //tabela de partidos
     std::cout << "Done" << std::endl;
 
     MemoryWrapper<DataBlock<Registro>> mem = MemoryWrapper<DataBlock<Registro>>(vhd);
@@ -66,12 +69,13 @@ int main(int argc, char const *argv[])
     std::cout << "Done" << std::endl;
 
     std::cout << "Testes de Join" << std::endl;
-    Join::runTests();
+    //Join::runTests();
+    Join::runTestsNested();
     std::cout << "Done" << std::endl;
 
     ifs.close();
+    ifs2.close();
     vhdf::closeDisk(vhd);
-
-    system("pause");
+    //system("pause");
     return 0;
 }

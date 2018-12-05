@@ -15,6 +15,7 @@
 #include <Query.hpp>
 #include <RegistroPartido.hpp>
 #include <Ordered.hpp>
+#include <Hash.hpp>
 
 namespace Join {
     void runTests();
