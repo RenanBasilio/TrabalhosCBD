@@ -42,12 +42,11 @@ int main(int argc, char const *argv[])
     ifs.open("consulta_cand_2018_BRASIL.csv", std::ifstream::in);
     std::string str;
     std::getline(ifs, str);
-    parseStream<Registro>(ifs, vhd, 1);
+    parseStream<Registro>(ifs, vhd, 1, 40000);
     ifs.clear();
     ifs.seekg(0, std::ios::beg);
     std::getline(ifs, str);
-    parseStream<RegistroPartido>(ifs, partyvhd, 1);     //tabela de partidos
-    std::cout << "Done" << std::endl;
+    parseStream<RegistroPartido>(ifs, partyvhd, 1, 40000);     //tabela de partidos
 
     MemoryWrapper<DataBlock<Registro>> mem = MemoryWrapper<DataBlock<Registro>>(vhd);
 /*     Index index = createIndex("testdisk.vhd", mem, "NM_CANDIDATO", ORDERED);

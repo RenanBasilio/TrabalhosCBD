@@ -1,6 +1,6 @@
 #include <Heap.hpp>
 
-bool Heap::INSERT(MemoryWrapper<DataBlock<Registro>> &mem, std::vector<Registro> registros) {
+/* bool Heap::INSERT(MemoryWrapper<DataBlock<Registro>> &mem, std::vector<Registro> registros) {
 
     Schema<Registro> schema;
     vhdf::readBlock(mem.getDiskId(), 0, &schema);
@@ -45,4 +45,4 @@ bool Heap::INSERT(MemoryWrapper<DataBlock<Registro>> &mem, std::vector<Registro>
     }
 
     return true;
-}
+} */
