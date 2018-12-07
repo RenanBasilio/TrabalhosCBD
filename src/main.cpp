@@ -76,6 +76,8 @@ int main(int argc, char const *argv[])
     ifs.close();
     ifs2.close();
     vhdf::closeDisk(vhd);
+
+    std::cout << "fim" << std::endl;
     //system("pause");
     return 0;
 }

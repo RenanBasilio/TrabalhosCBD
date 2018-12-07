@@ -126,7 +126,7 @@ namespace Ordered
         }
 
         vhdf::writeBlock(mem.getDiskId(), 0, &schema);
-        std::cout << count << std::endl;
+        //std::cout << count << std::endl;
         return true;
     }
 
