@@ -91,11 +91,6 @@ namespace Join {
         return nextReg;
     }
 
-    // Printa conteúdos de uma tabela genérica
-    template <typename T> 
-    void printTable(MemoryWrapper<DataBlock<T>> &mem) {
-    }
-
     // Printa conteúdos de uma tabela de Registro
     template <> 
     void printTable<Registro>(MemoryWrapper<DataBlock<Registro>> &mem) {

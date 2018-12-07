@@ -82,7 +82,10 @@ namespace Ordered
             if (!insertOK) {
                 mem.loadBlock(middle+1);
                 count++;
-                if (mem.getLoadedBlockId() > schema.ultimo_bloco) mem->initialize();
+                if (mem.getLoadedBlockId() > schema.ultimo_bloco) {
+                    mem->initialize();
+                    schema.ultimo_bloco = mem.getLoadedBlockId();
+                }
                 if (mem->isRegistroEscrito(0)) {
                     held = mem->getRegistro(0);
                     needsReorder = true;

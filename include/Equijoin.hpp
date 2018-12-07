@@ -27,4 +27,14 @@ namespace Join {
     std::vector<std::pair<Registro, RegistroPartido>> SORTMERGEJOIN(std::string join_attribute, int num_registros);
     std::vector<std::pair<Registro, RegistroPartido>> HASHJOIN(MemoryWrapper<DataBlock<Registro>> &mem1, MemoryWrapper<DataBlock<RegistroPartido>> &mem2, std::string join_attribute, int num_registros);
 
+    // Printa conteúdos de uma tabela genérica
+    template <typename T> 
+    void printTable(MemoryWrapper<DataBlock<T>> &mem) {
+    }
+
+    template <> 
+    void printTable<Registro>(MemoryWrapper<DataBlock<Registro>> &mem);
+
+    template <> 
+    void printTable<RegistroPartido>(MemoryWrapper<DataBlock<RegistroPartido>> &mem);
 }
