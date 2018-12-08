@@ -1,83 +1,59 @@
-#include <main.hpp>
-#include <fstream>
-#include <string>
-#include <cmath>
+#include <iostream>
 #include <exception>
-
+#include <vhdf.hpp>
+#include <Campo.hpp>
+#include <Parser/Registro.hpp>
+#include <Parser/RegistroPartido.hpp>
+#include <Parser/Parser.hpp>
 #include <Schema.hpp>
-#include <Hash.hpp>
+#include <MemoryWrapper.hpp>
+#include <TableUtils.hpp>
 #include <Ordered.hpp>
-#include <Heap.hpp>
-#include <Equijoin.hpp>
-#include <RegistroPartido.hpp>
-#include <Index.hpp>
 
-int main(int argc, char const *argv[])
-{
-    if (Registro::nPorBloco() < 0) throw std::runtime_error("Erro: Tamanho do registro é grande de mais (>1 bloco)");
-    
+int main() {
+    if (Registro::nPorBloco() < 0) throw std::runtime_error("Erro: Tamanho do registro e grande de mais (>1 bloco)");
+
     std::cout << "Tamanho do registro e de " << sizeof(Registro) << " bytes." << std::endl;
     std::cout << "Tamanho do bloco e de " << vhdf::BLOCK_SIZE << " bytes (" << Registro::nPorBloco() << " registros por bloco)." << std::endl;
-    
-    std::cout << "Initializing virtual hard disk... ";
-    remove("testdisk.vhd");
-    int vhd = vhdf::openDisk("testdisk.vhd", sizeof(Registro)*40000, true);
-    if (vhd == -1) {
-        std::cout << "Error opening virtual hard disk." << std::endl;
-        return -1;
-    }
-    std::cout << "Success" << std::endl;
 
-    //inicializando disco com a tabela de partidos
-    remove("partydisk.vhd");
-    int partyvhd = vhdf::openDisk("partydisk.vhd", sizeof(RegistroPartido)*40000, true);
-    if (partyvhd == -1) {
-        std::cout << "Error opening virtual hard disk." << std::endl;
-        return -1;
-    }
-    std::cout << "Success" << std::endl;
+    std::cout << "Construindo tabelas iniciais..." << std::endl;
 
-    std::cout << "Parsing input data from file consulta_cand_2018_BRASIL.csv...";
+    MemoryWrapper tb_candidatos = createTable("tb_candidatos.vhd", 40000*sizeof(Registro), Registro::initHEAD(), HEAP);
+    MemoryWrapper tb_partidos = createTable("tb_partidos.vhd", 40000*sizeof(RegistroPartido), RegistroPartido::initHEAD(), HEAP);
+    MemoryWrapper tb_candidatos_ordenada = createTable("tb_candidatos_ordenada.vhd", 40000*sizeof(Registro), Registro::initHEAD(), ORDERED, "NM_CANDIDATO");
+    MemoryWrapper tb_partidos_ordenada = createTable("tb_partidos_ordenada.vhd", 40000*sizeof(RegistroPartido), RegistroPartido::initHEAD(), ORDERED, "NR_PARTIDO");
+    MemoryWrapper tb_candidatos_hash = createTable("tb_candidatos_hash.vhd", 40000*sizeof(Registro), Registro::initHEAD(), HASH, "NM_CANDIDATO");
+    MemoryWrapper tb_partidos_hash = createTable("tb_partidos_hash.vhd", 40000*sizeof(RegistroPartido), RegistroPartido::initHEAD(), HASH, "NR_PARTIDO");
+
     std::ifstream ifs;
     ifs.open("consulta_cand_2018_BRASIL.csv", std::ifstream::in);
     std::string str;
     std::getline(ifs, str);
-    parseStream<Registro>(ifs, vhd, 1, 40000);
-    ifs.clear();
-    ifs.seekg(0, std::ios::beg);
 
-    std::ifstream ifs2;
-    ifs2.open("partidos.csv", std::ifstream::in);
-    std::getline(ifs2, str);
-    parseStream<RegistroPartido>(ifs2, partyvhd, 1, 4000);     //tabela de partidos
-    std::cout << "Done" << std::endl;
-
-    MemoryWrapper<DataBlock<Registro>> mem = MemoryWrapper<DataBlock<Registro>>(vhd);
-/*     Index index = createIndex("testdisk.vhd", mem, "NM_CANDIDATO", ORDERED);
-    std::vector<size_t> blocks = index.findBlocks("ABEL COSTA"); */
-
-    std::cout << "Executando testes..." << std::endl; 
-    std::cout << "Formato: [Nome do Teste: número de acessos a bloco]" << std::endl;
-    std::cout << "Armazenamento heap... " << std::endl; 
-    //Heap::runTests();
-    std::cout << "Done" << std::endl; 
-    std::cout << "Armazenamento ordenado..." << std::endl;
-    //Ordered::runTests();
-    std::cout << "Done" << std::endl;
-    std::cout << "Armazenamento em hash..." << std::endl;
-    //Hash::runTests();
-    std::cout << "Done" << std::endl;
-
-    std::cout << "Testes de Join" << std::endl;
-    //Join::runTests();
-    Join::runTestsNested();
-    std::cout << "Done" << std::endl;
-
+    parseStream<Registro>(tb_candidatos, ifs, 40000);
     ifs.close();
-    ifs2.close();
-    vhdf::closeDisk(vhd);
 
-    std::cout << "fim" << std::endl;
-    //system("pause");
+    std::cout << "Criou tabela tb_candidatos com " << tb_candidatos.getSchema().toString() << std::endl;
+
+    ifs.open("partidos.csv", std::ifstream::in);
+    std::getline(ifs, str);
+
+    parseStream<RegistroPartido>(tb_partidos, ifs, 4000);
+    ifs.close();
+
+    std::cout << "Criou tabela tb_partidos com " << tb_partidos.getSchema().toString() << std::endl;
+
+    std::vector<void*> inserts(1000);
+    for ( size_t i = 0; ( i < ( inserts.size() / tb_candidatos.getSchema().regs_por_bloco ) ) && ( i + tb_candidatos.getSchema().primeiro_bloco <= tb_candidatos.getSchema().ultimo_bloco); i++ ) {
+        tb_candidatos.loadBlock( i + tb_candidatos.getSchema().primeiro_bloco );
+        for ( size_t j = 0; j < 10 ; j++ ) {
+            inserts.at( i*10 + j ) = malloc( tb_candidatos.getSchema().tamanho );
+            tb_candidatos->getRegistro( j, inserts.at( i*10 + j ) );
+        }
+    }
+    Ordered::INSERT( tb_candidatos_ordenada, inserts );
+
+    std::cout << "Criou tabela tb_candidatos_ordenada com " << tb_candidatos_ordenada.getSchema().toString() << std::endl;
+
     return 0;
 }

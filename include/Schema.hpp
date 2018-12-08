@@ -1,37 +1,73 @@
 #pragma once
-#include <Util.hpp>
-#include <Data.hpp>
+#include <vector>
+
+#include <Serializable.hpp>
 #include <Campo.hpp>
 #include <Timestamp.hpp>
-#include <DataBlock.hpp>
 
-enum Organizacao { HEAP, ORDERED, HASH, BTREE };    
+enum Organizacao { HEAP, ORDERED, HASH, BTREE };
 
-template <typename T>
-class Schema
+class Schema : public Serializable
 {
-private:
-    // Vetor de tamanhos e localizações relativas dos campos e do registro (usar função initRegistro abaixo)
-    // Ponteiros para estruturas secundárias como o identificador de registros deletados
-    // Timestamps relevantes à base
 public:
-    size_t primeiro_bloco, ultimo_bloco, blocos_hash;
-    unsigned int  tamanho, regs_por_bloco, offset, chave;
-    size_t ptr_registros_deletados;
+    size_t primeiro_bloco = 0, ultimo_bloco = 0, blocos_hash = 0;
+    unsigned int tamanho = 0, regs_por_bloco = 0, offset = 0, chave = 0;
     Timestamp criacao, alteracao;
-    int nCampos;
-    Campo campos[T::nCampos()];
     Organizacao org;
+    unsigned int nCampos = 0;
+    std::vector<Campo> campos;
 
-    Schema() {
-        std::vector<Campo> cps = T::initHEAD();
-        memcpy(campos, &cps[0], T::nCampos()*sizeof(Campo));
-        nCampos = cps.size();
-        tamanho = sizeof(T);
+    Schema() { 
+        campos = std::vector<Campo>();
+    }
+
+    Schema(const std::vector<Campo>& _campos) {
+        campos = std::vector<Campo>(_campos);
+        nCampos = campos.size();
+        for( auto c : campos) {
+            tamanho += c.tamanho;
+        }
         regs_por_bloco = vhdf::BLOCK_SIZE/tamanho;
-    };
-private:
-    char padding[vhdf::BLOCK_SIZE - (sizeof(size_t)*3 + sizeof(int)*5 + sizeof(Organizacao) + sizeof(Timestamp)*2 + sizeof(Campo)*T::nCampos())];
+    }
+
+    virtual size_t serialize_size() const {
+        return sizeof(primeiro_bloco) + sizeof(ultimo_bloco) + 
+                sizeof(blocos_hash) + sizeof(tamanho) + 
+                sizeof(regs_por_bloco) + sizeof(offset) + 
+                sizeof(chave) + sizeof(criacao) + sizeof(alteracao) +
+                sizeof(org) + sizeof(nCampos);
+    }
+
+    virtual void serialize( char* data ) const { 
+        size_t cont_size = serialize_size();
+        memcpy(data, &primeiro_bloco, cont_size);
+        for (size_t i = 0; i < nCampos; i++) {
+            char* pos = data + cont_size + (i*sizeof(Campo));
+            campos[i].serialize(pos);
+        }
+    }
+
+    virtual void deserialize( const char* data ) {
+        size_t cont_size = serialize_size();
+        memcpy(&primeiro_bloco, data, cont_size);
+        for (size_t i = 0; i < nCampos; i++) {
+            Campo cp;
+            const char* pos = data + cont_size + (i*sizeof(Campo));
+            cp.deserialize(pos);
+            campos.push_back(cp);
+        }
+    }
+
+    std::string toString() {
+        std::string str = "Schema[\n  start=" + std::to_string(primeiro_bloco) 
+                        + ", end=" + std::to_string(ultimo_bloco) 
+                        + ", size=" + std::to_string(tamanho) + " ( " + std::to_string(regs_por_bloco) + " /block )"
+                        + ", fields=" + std::to_string(nCampos)
+                        + "\n";
+        for (size_t i = 0; i < campos.size(); i++) {
+            str += "  " + campos[i].toString() + "\n";
+        }
+        str += "]";
+        return str;
+    }
 };
-
-

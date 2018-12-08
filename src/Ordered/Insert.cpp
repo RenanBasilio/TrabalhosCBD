@@ -1,19 +1,18 @@
 #include <Ordered.hpp>
 
-/* bool Ordered::INSERT(MemoryWrapper<DataBlock<Registro>> mem, std::vector<Registro> registros) {
+bool Ordered::INSERT(MemoryWrapper &mem, const std::vector<void*> &registros) {
     int count = 0;
-    Schema<Registro> schema;
-    vhdf::readBlock(mem.getDiskId(), 0, &schema);
-
-    size_t bloco = schema.ultimo_bloco;
+    Schema schema = mem.getSchema();
 
     int insertpos;
+
+    void* reg = malloc(schema.tamanho);
 
     for (int i = 0; i<registros.size(); i++) {
 
         Campo chave = schema.campos[schema.chave];
         //std::cout << chave.nm_campo << std::endl;
-        std::string valor = getValorCampo(chave, &registros[i]);
+        std::string valor = getValorCampo(chave, registros.at(i));
 
         // Busca binaria
         size_t upper = schema.ultimo_bloco;
@@ -25,10 +24,10 @@
             middle = (upper+lower+1)/2;
             mem.loadBlock(middle);
             count++;
+            
+            mem->getRegistro(0, reg);
 
-            Registro reg = mem->getRegistro(0);
-
-            if ( comparaCampo(chave, &reg, valor, ">") ) {
+            if ( comparaCampo(chave, reg, valor, ">") ) {
                 upper = middle-1;
             }
             else {
@@ -40,31 +39,34 @@
         mem.loadBlock(middle);
         count++;
         // Operação de Insert
-        Registro held;
+        void* held = malloc(schema.tamanho);
         bool insertOK = false;
         bool needsReorder = false;
 
         for (int j = 0; j < schema.regs_por_bloco; j++) {
             
-            Registro reg = mem->getRegistro(j);
+            mem->getRegistro(j, reg);
             
-            if ( !mem->isRegistroEscrito(j) || comparaCampo(chave, &reg, valor, ">") ) {
+            if ( !mem->isRegistroEscrito(j) || comparaCampo(chave, reg, valor, ">") ) {
                 insertOK = true;
                 insertpos = j;
                 if (mem->isRegistroEscrito(j)) {
-                    held = mem->getRegistro(j);
+                    mem->getRegistro(j, held);
                     needsReorder = true;
                 }
-                mem->setRegistro(j, registros[i]);
+                mem->setRegistro(j, registros.at(i));
                 break;
             }
         }
         if (!insertOK) {
             mem.loadBlock(middle+1);
             count++;
-            if (mem.getLoadedBlockId() > schema.ultimo_bloco) mem->initialize();
+            if (mem.getLoadedBlockId() > schema.ultimo_bloco) {
+                schema.ultimo_bloco = mem.getLoadedBlockId();
+                mem.updateSchema(schema);
+            }
             if (mem->isRegistroEscrito(0)) {
-                held = mem->getRegistro(0);
+                mem->getRegistro(0, held);
                 needsReorder = true;
             }
             mem->setRegistro(0, registros[i]);
@@ -74,16 +76,15 @@
         // Reordenacao
         if (needsReorder) {
             insertpos++;
-            Registro placing;
             for (int j = mem.getLoadedBlockId(); j <= schema.ultimo_bloco+1; j++) {
                 bool stop = false;
                 for (insertpos; insertpos < schema.regs_por_bloco; insertpos++) {
-                    std::swap(held, placing);
+                    std::swap(held, reg);
                     
-                    if (mem->isRegistroEscrito(insertpos)) held = mem->getRegistro(insertpos);
+                    if (mem->isRegistroEscrito(insertpos)) mem->getRegistro(insertpos, held);
                     else stop = true;
                     
-                    mem->setRegistro(insertpos, placing);
+                    mem->setRegistro(insertpos, reg);
                     if(stop) break;
                 }
                 mem.commitBlock();
@@ -93,19 +94,18 @@
                 count++;
                 insertpos = 0;
                 if (mem.getLoadedBlockId() > schema.ultimo_bloco) {
-                    mem->initialize();
                     schema.ultimo_bloco = mem.getLoadedBlockId();
+                    mem.updateSchema(schema);
                 }
-                bloco++;
             }
         }
         else{ 
-            mem.commitBlock(); count++;
+            mem.commitBlock(); 
+            count++;
         }
     }
 
-    vhdf::writeBlock(mem.getDiskId(), 0, &schema);
-    std::cout << count << std::endl;
+    mem.updateSchema(schema);
+    //std::cout << count << std::endl;
     return true;
-}
- */
+};

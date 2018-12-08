@@ -1,8 +1,7 @@
 #include <Campo.hpp>
 #include <Util.hpp>
-#include <Registro.hpp>
 #include <exception>
-#include <stdexcept>
+#include <cstring>
 
 bool comparaCampo( Campo campo, const void* reg, std::string valor, const std::string &opr) {
     const void* cmp_ptr = nullptr;
@@ -136,6 +135,7 @@ std::string getValorCampo(Campo campo, const void* reg) {
             valor = std::to_string(*(size_t*)val_ptr);
             break;
         case CHAR: {
+            char test[70];
             int len = strnlen((char*)val_ptr, campo.tamanho);
             valor = std::string((char*)val_ptr, len);
             }

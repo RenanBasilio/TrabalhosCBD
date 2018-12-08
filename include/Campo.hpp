@@ -1,10 +1,10 @@
 #pragma once
-#include <cstring>
 #include <string>
+#include <Serializable.hpp>
 
 enum TipoCampo { INT, BIGINT, CHAR, DATA, HORA, TIMESTAMP, BOOL };
 
-class Campo
+class Campo : public Serializable
 {
 public:
     int tamanho, pos_relativa;
@@ -19,6 +19,23 @@ public:
         tipo = tp;
     }
     ~Campo() {};
+
+    virtual size_t serialize_size() const {
+        return sizeof(tamanho) + sizeof(pos_relativa) + sizeof(nm_campo) + sizeof(tipo);
+    }
+
+    virtual void serialize( char* data ) const {
+        memcpy(data, &tamanho, serialize_size());
+    }
+
+    virtual void deserialize( const char* data ) {
+        memcpy(&tamanho, data, serialize_size());
+    }
+
+    std::string toString() {
+        std::string str = "Campo[ " + std::string(nm_campo, sizeof(nm_campo)) + ", tamanho=" + std::to_string(tamanho) + ", offset=" + std::to_string(pos_relativa) + " ]";
+        return str;
+    }
 };
 
 

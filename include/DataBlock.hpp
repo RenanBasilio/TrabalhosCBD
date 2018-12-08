@@ -1,60 +1,69 @@
 #pragma once
-#include <bitset>
 #include <cstring>
-#include <Registro.hpp>
 #include <Util.hpp>
+#include <Schema.hpp>
 
-
-template <typename T>
-class DataBlock {
+class DataBlock
+{
+private:
+    friend class MemoryWrapper;
+    bool initialized = false;
+    size_t recordSize = 0;
 public:
-    std::bitset<T::nPorBloco()> registrosEscritos;
-
-    char data[vhdf::BLOCK_SIZE-sizeof(DataBlock::registrosEscritos)-sizeof(size_t)];
+    std::vector<bool> registrosEscritos;
 
     size_t overflow = 0;
 
+    std::vector<void*> registros;
+
     // Recupere um registro de um bloco
-    T getRegistro(int index){
-        T reg;
+    bool getRegistro(int index, void* reg){
+        
+        if (!registrosEscritos.at(index)) return false;
 
-        if (!registrosEscritos.test(index)) return reg;
+        memcpy(reg, registros.at(index), recordSize);
 
-        void* block = static_cast<char*>(data) + sizeof(T)*index;
-        memcpy(&reg, block, sizeof(T));
-
-        return reg;
+        return true;
     };
 
     // Escreve um registro em um bloco
-    void setRegistro(int index, const T& reg){
-        void* block = static_cast<char*>(data) + sizeof(T)*index;
-        memcpy(block, &reg, sizeof(T));
-        registrosEscritos.set(index);
+    void setRegistro(int index, const void* reg){
+
+        if (!registrosEscritos.at(index)) {
+            registrosEscritos.at(index) = true;
+        }
+        memcpy(registros.at(index), reg, recordSize);
+
     };
 
     void deleteRegistro(int index){
-        registrosEscritos.reset(index);
+        registrosEscritos.at(index) = false;
     };
 
     bool isRegistroEscrito(int index){
-        return registrosEscritos.test(index);
+        return registrosEscritos.at(index);
     };
 
     int getPrimeiroRegistroDispEscrita(){
-        for(int i = 0; i < registrosEscritos.size(); i++)
-            if (!registrosEscritos.test(i))
+        for(int i = 0; i < registros.size(); i++)
+            if (!registrosEscritos.at(i))
                 return i;
         return -1;
     };
 
-    static constexpr int tamanhoOffset() {
-        return constexpr_ceil(sizeof(DataBlock::registrosEscritos)/8);
-    }
+    void initialize(size_t size, size_t nRecords){
+        recordSize = size;
+        registrosEscritos = std::vector<bool>(std::ceil(nRecords/8.0)*8);
+        registrosEscritos.assign(registrosEscritos.size(), false);
 
-    void initialize(){
-        registrosEscritos.reset();
-        overflow = 0;
+        if ( !initialized ) {
+            registros = std::vector<void*>(nRecords);
+            for ( size_t i = 0; i < nRecords; i++ ) {
+                registros.at(i) = malloc(recordSize);
+            }
+            overflow = 0;
+        }
+
+        initialized = true;
     };
-
 };

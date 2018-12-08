@@ -5,7 +5,7 @@
 # > cmake --build .
 
 cmake_minimum_required(VERSION 3.5)
-project(Lista_02
+project(SimpleDB
         VERSION 0.0.0)
 
 enable_language(CXX)
@@ -25,29 +25,14 @@ add_subdirectory(lib/vhdf-1.0.0/)
 set(
     SOURCE_FILES
     src/main.cpp
-    src/Data.cpp
-    src/DataBlock.cpp
-    src/Parser.cpp
-    src/Query.cpp
-    src/Registro.cpp
-    src/Util.cpp
-    src/MemoryWrapper.cpp
     src/Campo.cpp
-    src/Hash/Insert.cpp
-    src/Hash/Select.cpp
-    src/Hash/Delete.cpp
-    src/Hash/Test.cpp
-    src/Heap/Insert.cpp
-    src/Heap/Select.cpp
-    src/Heap/Delete.cpp
-    src/Heap/Test.cpp
+    src/Util.cpp
+    src/Data.cpp
+    src/Hora.cpp
     src/Ordered/Insert.cpp
-    src/Ordered/Select.cpp
-    src/Ordered/Delete.cpp
-    src/Ordered/Test.cpp
-    src/RegistroPartido.cpp
-        src/Join/EquijoinMergeHash.cpp
-        src/Join/EquijoinNested.cpp)
+    src/Parser/Registro.cpp
+    src/Parser/RegistroPartido.cpp
+)
 
 # Set the name of the built executable
 set(EXE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}")

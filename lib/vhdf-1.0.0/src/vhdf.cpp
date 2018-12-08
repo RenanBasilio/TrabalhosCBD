@@ -62,14 +62,19 @@ namespace vhdf
     }
 
     int closeDisk(int disk) {
-        VHD* vhd = disks[disk];
-        disks.erase(disks.begin() + disk);
-        disks_open.erase(vhd->name);
-        if (fclose(vhd->file) != EOF) {
-            delete vhd;
-            return 0;
+        try {
+            VHD* vhd = disks.at(disk);
+            disks.erase(disks.begin() + disk);
+            disks_open.erase(vhd->name);
+            if (fclose(vhd->file) != EOF) {
+                delete vhd;
+                return 0;
+            }
+            else return -1;
         }
-        else return -1;
+        catch ( std::exception &e ) {
+            return -1;
+        }
     }
 
     int writeBlock(int disk, size_t blocknr, void* buff) {
